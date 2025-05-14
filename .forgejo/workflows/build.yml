@@ -23,12 +23,6 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: "Install cosign"
-        uses: "https://github.com/sigstore/cosign-installer@v3.8.2"
-        if: "github.event_name != 'pull_request'"
-        with:
-          cosign-release: "v2.5.0"
-
         # TODO: https://github.com/catthehacker/docker_images/issues/112
       - name: "Install QEMU"
         run: |
