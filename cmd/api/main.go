@@ -79,6 +79,16 @@ func PostSubscribe(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+func GetHealthy(w http.ResponseWriter, r *http.Request) {
+	log.Printf("GetHealthy: %s\n", r.RemoteAddr)
+	w.WriteHeader(http.StatusOK)
+}
+
+func GetReady(w http.ResponseWriter, r *http.Request) {
+	log.Printf("GetHealthy: %s\n", r.RemoteAddr)
+	w.WriteHeader(http.StatusOK)
+}
+
 func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /confirm/{token}", GetConfirm)
@@ -86,12 +96,8 @@ func main() {
 	mux.HandleFunc("GET /weather", GetWeather)
 	mux.HandleFunc("POST /subscribe", PostSubscribe)
 
-	mux.HandleFunc("GET /-/healthy", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-	})
-	mux.HandleFunc("GET /-/ready", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-	})
+	mux.HandleFunc("GET /-/healthy", GetHealthy)
+	mux.HandleFunc("GET /-/ready", GetReady)
 
 	log.Fatal(http.ListenAndServe(":8000", mux))
 }

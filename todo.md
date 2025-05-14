@@ -1,5 +1,10 @@
 # todo
 
+## Database
+
+- [ ] PostgreSQL
+- [ ] SQLite
+
 ## OAuth2
 
 - [ ] OpenID Connect
