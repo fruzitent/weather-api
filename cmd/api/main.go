@@ -85,5 +85,13 @@ func main() {
 	mux.HandleFunc("GET /unsubscribe/{token}", GetUnsubscribe)
 	mux.HandleFunc("GET /weather", GetWeather)
 	mux.HandleFunc("POST /subscribe", PostSubscribe)
+
+	mux.HandleFunc("GET /-/healthy", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
+	mux.HandleFunc("GET /-/ready", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
+
 	log.Fatal(http.ListenAndServe(":8000", mux))
 }
