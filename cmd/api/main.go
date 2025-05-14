@@ -10,7 +10,7 @@ import (
 	"net/url"
 	"os"
 
-	"git.fruzit.pp.ua/weather/api/cmd/config"
+	"git.fruzit.pp.ua/weather/api/internal/config"
 )
 
 type Weather struct {

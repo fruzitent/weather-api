@@ -6,6 +6,7 @@ FROM --platform=$BUILDPLATFORM docker.io/tonistiigi/xx:1.6.1@sha256:923441d7c25f
 FROM scratch AS source
 
 COPY --link ["./cmd/", "./cmd/"]
+COPY --link ["./internal/", "./internal/"]
 COPY --link ["./go.mod", "./go.mod"]
 COPY --link ["./go.sum", "./go.sum"]
 
