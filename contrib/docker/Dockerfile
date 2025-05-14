@@ -3,18 +3,28 @@
 
 FROM --platform=$BUILDPLATFORM docker.io/tonistiigi/xx:1.6.1@sha256:923441d7c25f1e2eb5789f82d987693c47b8ed987c4ab3b075d6ed2b5d6779a3 AS xx
 
-FROM scratch AS source
+FROM scratch AS source-deps
 
 COPY --link ["./cmd/", "./cmd/"]
-COPY --link ["./internal/", "./internal/"]
 COPY --link ["./go.mod", "./go.mod"]
 COPY --link ["./go.sum", "./go.sum"]
 
-FROM --platform=$BUILDPLATFORM docker.io/library/golang:1.24.3-alpine3.21@sha256:ef18ee7117463ac1055f5a370ed18b8750f01589f13ea0b48642f5792b234044 AS builder
+FROM scratch AS source-code
+
+COPY --link ["./cmd/", "./cmd/"]
+COPY --link ["./internal/", "./internal/"]
+
+FROM --platform=$BUILDPLATFORM docker.io/library/golang:1.24.3-alpine3.21@sha256:ef18ee7117463ac1055f5a370ed18b8750f01589f13ea0b48642f5792b234044 AS deps
+
+COPY --from=source-deps --link ["/", "/usr/local/src/weather-api/"]
+
+RUN --mount=type=cache,target=/root/.cache/go-build go -C "/usr/local/src/weather-api/" mod download
+
+FROM deps AS builder
 
 COPY --from=xx --link ["/", "/"]
 
-COPY --from=source --link ["/", "/usr/local/src/weather-api/"]
+COPY --from=source-code --link ["/", "/usr/local/src/weather-api/"]
 
 ARG TARGETPLATFORM
 
