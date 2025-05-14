@@ -2,10 +2,13 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"net/url"
+
+	"weather-api/cmd/config"
 )
 
 type Weather struct {
@@ -99,5 +102,5 @@ func main() {
 	mux.HandleFunc("GET /-/healthy", GetHealthy)
 	mux.HandleFunc("GET /-/ready", GetReady)
 
-	log.Fatal(http.ListenAndServe(":8000", mux))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%d", config.Host, config.Port), mux))
 }
