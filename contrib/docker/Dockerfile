@@ -25,8 +25,9 @@ COPY --from=builder --link ["/etc/ssl/certs/ca-certificates.crt", "/etc/ssl/cert
 COPY --from=builder --link ["/usr/local/src/weather-api/api", "/usr/local/bin/weather-api"]
 
 ENTRYPOINT ["weather-api"]
-HEALTHCHECK --interval=10s --retries=3 --start-period=10s --timeout=5s CMD [ "weather-api", "health" ]
 CMD ["daemon"]
+
+HEALTHCHECK --interval=10s --retries=3 --start-period=10s --timeout=5s CMD [ "weather-api", "health" ]
 
 ARG CREATED
 ARG REVISION
