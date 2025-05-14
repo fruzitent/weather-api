@@ -16,3 +16,6 @@ build-docker CREATED=shell("date --utc +%Y-%m-%dT%H:%M:%SZ") REVISION=shell("git
         --tag "git.fruzit.pp.ua/weather/api:{{ VERSION }}" \
         --tag "git.fruzit.pp.ua/weather/api:latest" \
         ;
+
+run:
+    go run "./cmd/api/main.go"
