@@ -5,6 +5,10 @@
 - [ ] PostgreSQL
 - [ ] SQLite
 
+## I18n
+
+- [] Project Fluent
+
 ## OAuth2
 
 - [ ] OpenID Connect
