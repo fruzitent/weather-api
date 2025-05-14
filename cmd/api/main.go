@@ -2,11 +2,13 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 
 	"weather-api/cmd/config"
 )
@@ -92,15 +94,45 @@ func GetReady(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+const (
+	CMD_DAEMON = "daemon"
+	CMD_HEALTH = "health"
+)
+
 func main() {
-	mux := http.NewServeMux()
-	mux.HandleFunc("GET /confirm/{token}", GetConfirm)
-	mux.HandleFunc("GET /unsubscribe/{token}", GetUnsubscribe)
-	mux.HandleFunc("GET /weather", GetWeather)
-	mux.HandleFunc("POST /subscribe", PostSubscribe)
+	daemonCmd := flag.NewFlagSet(CMD_DAEMON, flag.ExitOnError)
+	healthCmd := flag.NewFlagSet(CMD_HEALTH, flag.ExitOnError)
 
-	mux.HandleFunc("GET /-/healthy", GetHealthy)
-	mux.HandleFunc("GET /-/ready", GetReady)
+	if len(os.Args) < 2 {
+		log.Fatalf("not enough arguments")
+	}
 
-	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%d", config.Host, config.Port), mux))
+	addr := fmt.Sprintf("%s:%d", config.Host, config.Port)
+
+	switch os.Args[1] {
+	case CMD_DAEMON:
+		daemonCmd.Parse(os.Args[2:])
+
+		mux := http.NewServeMux()
+		mux.HandleFunc("GET /confirm/{token}", GetConfirm)
+		mux.HandleFunc("GET /unsubscribe/{token}", GetUnsubscribe)
+		mux.HandleFunc("GET /weather", GetWeather)
+		mux.HandleFunc("POST /subscribe", PostSubscribe)
+
+		mux.HandleFunc("GET /-/healthy", GetHealthy)
+		mux.HandleFunc("GET /-/ready", GetReady)
+
+		log.Fatal(http.ListenAndServe(addr, mux))
+
+	case CMD_HEALTH:
+		healthCmd.Parse(os.Args[2:])
+
+		_, err := http.Get(fmt.Sprintf("http://%s/-/healthy", addr))
+		if err != nil {
+			log.Fatalf("%s", err.Error())
+		}
+
+	default:
+		log.Fatalf("invalid subcommand %s\n", os.Args[1])
+	}
 }

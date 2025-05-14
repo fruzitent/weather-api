@@ -18,4 +18,4 @@ build-docker CREATED=shell("date --utc +%Y-%m-%dT%H:%M:%SZ") REVISION=shell("git
         ;
 
 run:
-    go run "./cmd/api/main.go"
+    go run "./cmd/api/main.go" daemon

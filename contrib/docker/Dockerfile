@@ -18,17 +18,15 @@ COPY --from=source --link ["/", "/usr/local/src/weather-api/"]
 ARG TARGETPLATFORM
 
 RUN --mount=type=cache,target=/root/.cache/go-build xx-go build -C "/usr/local/src/weather-api/" "./cmd/api/" && xx-verify "/usr/local/src/weather-api/api"
-RUN --mount=type=cache,target=/root/.cache/go-build xx-go build -C "/usr/local/src/weather-api/" "./cmd/healthcheck/" && xx-verify "/usr/local/src/weather-api/healthcheck"
 
 FROM scratch AS runner
 
 COPY --from=builder --link ["/etc/ssl/certs/ca-certificates.crt", "/etc/ssl/certs/ca-certificates.crt"]
 COPY --from=builder --link ["/usr/local/src/weather-api/api", "/usr/local/bin/weather-api"]
-COPY --from=builder --link ["/usr/local/src/weather-api/healthcheck", "/usr/local/bin/weather-healthcheck"]
 
-ENTRYPOINT ["/usr/local/bin/weather-api"]
-HEALTHCHECK --interval=10s --retries=3 --start-period=10s --timeout=5s CMD [ "weather-healthcheck" ]
-CMD []
+ENTRYPOINT ["weather-api"]
+HEALTHCHECK --interval=10s --retries=3 --start-period=10s --timeout=5s CMD [ "weather-api", "health" ]
+CMD ["daemon"]
 
 ARG CREATED
 ARG REVISION
