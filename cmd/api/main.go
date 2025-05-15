@@ -100,9 +100,6 @@ const (
 )
 
 func main() {
-	daemonCmd := flag.NewFlagSet(CMD_DAEMON, flag.ExitOnError)
-	healthCmd := flag.NewFlagSet(CMD_HEALTH, flag.ExitOnError)
-
 	if len(os.Args) < 2 {
 		log.Fatalf("not enough arguments")
 	}
@@ -111,6 +108,7 @@ func main() {
 
 	switch os.Args[1] {
 	case CMD_DAEMON:
+		daemonCmd := flag.NewFlagSet(CMD_DAEMON, flag.ExitOnError)
 		daemonCmd.Parse(os.Args[2:])
 
 		mux := http.NewServeMux()
@@ -125,11 +123,12 @@ func main() {
 		log.Fatal(http.ListenAndServe(addr, mux))
 
 	case CMD_HEALTH:
+		healthCmd := flag.NewFlagSet(CMD_HEALTH, flag.ExitOnError)
 		healthCmd.Parse(os.Args[2:])
 
 		_, err := http.Get(fmt.Sprintf("http://%s/-/healthy", addr))
 		if err != nil {
-			log.Fatalf("%s", err.Error())
+			log.Fatal(err)
 		}
 
 	default:
