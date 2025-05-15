@@ -33,13 +33,16 @@ func main() {
 		daemonCmd := flag.NewFlagSet(CMD_DAEMON, flag.ExitOnError)
 		daemonCmd.Parse(args[1:])
 
-		_, err := sqlite.Open(ctx)
+		db, err := sqlite.Open(ctx)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		subscriptionService := primary.NewSubscriptionService()
-		weatherService := primary.NewWeatherService()
+		subscriptionRepo := sqlite.NewSubscriptionRepo(db)
+		weatherRepo := sqlite.NewWeatherRepo(db)
+
+		subscriptionService := primary.NewSubscriptionService(subscriptionRepo)
+		weatherService := primary.NewWeatherService(weatherRepo)
 
 		http.ServeHTTP(addr, subscriptionService, weatherService)
 
