@@ -2,26 +2,33 @@ package http
 
 import (
 	"fmt"
-	"log"
 	"net/http"
+
+	"git.fruzit.pp.ua/weather/api/internal/service"
 )
 
-type probe struct{}
+type probe struct {
+	service service.IProbe
+}
 
-func NewProbeController(mux *http.ServeMux) *probe {
-	c := &probe{}
-	mux.HandleFunc("GET /-/healthy", c.healthy)
-	mux.HandleFunc("GET /-/ready", c.ready)
+func NewProbeController(mux *http.ServeMux, service service.IProbe) *probe {
+	c := &probe{service}
+	mux.HandleFunc("GET /-/healthy", c.getHealthy)
+	mux.HandleFunc("GET /-/ready", c.getReady)
 	return c
 }
 
-func (c *probe) healthy(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Healthy: %s\n", r.RemoteAddr)
+func (c *probe) getHealthy(w http.ResponseWriter, r *http.Request) {
+	if err := c.service.IsHealthy(); err != nil {
+		w.WriteHeader(http.StatusBadGateway)
+	}
 	w.WriteHeader(http.StatusOK)
 }
 
-func (c *probe) ready(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Ready: %s\n", r.RemoteAddr)
+func (c *probe) getReady(w http.ResponseWriter, r *http.Request) {
+	if err := c.service.IsReady(); err != nil {
+		w.WriteHeader(http.StatusBadGateway)
+	}
 	w.WriteHeader(http.StatusOK)
 }
 

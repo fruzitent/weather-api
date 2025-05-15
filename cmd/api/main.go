@@ -9,7 +9,6 @@ import (
 	"git.fruzit.pp.ua/weather/api/internal/config"
 	repo "git.fruzit.pp.ua/weather/api/internal/repo/sqlite"
 	service "git.fruzit.pp.ua/weather/api/internal/service/primary"
-	"git.fruzit.pp.ua/weather/api/internal/transport/http"
 	transport "git.fruzit.pp.ua/weather/api/internal/transport/http"
 )
 
@@ -41,11 +40,12 @@ func main() {
 		subscriptionRepo := repo.NewSubscriptionRepo(db)
 		weatherRepo := repo.NewWeatherRepo(db)
 
+		probeService := service.NewProbeService()
 		subscriptionService := service.NewSubscriptionService(subscriptionRepo)
 		weatherService := service.NewWeatherService(weatherRepo)
 
 		mux := transport.NewServeMux()
-		_ = transport.NewProbeController(mux)
+		_ = transport.NewProbeController(mux, probeService)
 		_ = transport.NewSubscriptionController(mux, subscriptionService)
 		_ = transport.NewWeatherController(mux, weatherService)
 		log.Fatal(transport.ListenAndServe(addr, mux))
@@ -54,7 +54,7 @@ func main() {
 		healthCmd := flag.NewFlagSet(CMD_HEALTH, flag.ExitOnError)
 		healthCmd.Parse(args[1:])
 
-		if err := http.IsHealthy(addr); err != nil {
+		if err := transport.IsHealthy(addr); err != nil {
 			log.Fatal(err)
 		}
 
