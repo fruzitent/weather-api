@@ -1,11 +1,15 @@
 package sqlite
 
-import "database/sql"
+import (
+	"database/sql"
+
+	"git.fruzit.pp.ua/weather/api/internal/repo"
+)
 
 type subscription struct {
 	db *sql.DB
 }
 
-func NewSubscriptionRepo(db *sql.DB) *subscription {
+func NewSubscriptionRepo(db *sql.DB) repo.ISubscription {
 	return &subscription{db}
 }
