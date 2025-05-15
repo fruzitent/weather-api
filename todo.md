@@ -3,7 +3,16 @@
 ## Database
 
 - [ ] PostgreSQL
-- [ ] SQLite
+- [x] SQLite
+
+## Init System
+
+- [ ] inittab
+- [ ] Launchd
+- [ ] OpenRC
+- [ ] Runit
+- [ ] scm
+- [ ] Systemd
 
 ## I18n
 
@@ -19,3 +28,31 @@
 - [ ] Metrics
 - [ ] Profiles
 - [ ] Traces
+
+## Package
+
+- [ ] APK
+- [ ] Chocolatey
+- [ ] DEB
+- [ ] DMG
+- [ ] Ebuild
+- [ ] Flatpak
+- [ ] GUIX
+- [ ] Homebrew
+- [ ] MSI
+- [ ] Nix
+- [x] OCI
+- [ ] pacman
+- [ ] RPM
+- [ ] Scoop
+- [ ] Winget
+- [ ] Xbps
+
+## Shell Completion
+
+- [ ] Bash
+- [ ] Elvish
+- [ ] Fish
+- [ ] Nushell
+- [ ] Pwsh
+- [ ] Zsh
