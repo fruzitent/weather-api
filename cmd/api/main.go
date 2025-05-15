@@ -5,7 +5,6 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"os"
 
 	"git.fruzit.pp.ua/weather/api/internal/config"
 	"git.fruzit.pp.ua/weather/api/internal/repo/sqlite"
@@ -21,16 +20,18 @@ const (
 func main() {
 	ctx := context.Background()
 
-	if len(os.Args) < 2 {
+	config := config.NewConfig()
+	addr := fmt.Sprintf("%s:%d", config.Http.Host, config.Http.Port)
+
+	args := flag.Args()
+	if len(args) < 1 {
 		log.Fatalf("not enough arguments")
 	}
 
-	addr := fmt.Sprintf("%s:%d", config.Host, config.Port)
-
-	switch os.Args[1] {
+	switch args[0] {
 	case CMD_DAEMON:
 		daemonCmd := flag.NewFlagSet(CMD_DAEMON, flag.ExitOnError)
-		daemonCmd.Parse(os.Args[2:])
+		daemonCmd.Parse(args[1:])
 
 		_, err := sqlite.Open(ctx)
 		if err != nil {
@@ -44,13 +45,13 @@ func main() {
 
 	case CMD_HEALTH:
 		healthCmd := flag.NewFlagSet(CMD_HEALTH, flag.ExitOnError)
-		healthCmd.Parse(os.Args[2:])
+		healthCmd.Parse(args[1:])
 
 		if err := http.IsHealthy(addr); err != nil {
 			log.Fatal(err)
 		}
 
 	default:
-		log.Fatalf("invalid subcommand %s\n", os.Args[1])
+		log.Fatalf("invalid subcommand %s\n", args[0])
 	}
 }
