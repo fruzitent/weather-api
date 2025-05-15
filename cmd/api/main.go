@@ -9,6 +9,7 @@ import (
 
 	"git.fruzit.pp.ua/weather/api/internal/config"
 	"git.fruzit.pp.ua/weather/api/internal/repo/sqlite"
+	"git.fruzit.pp.ua/weather/api/internal/service/primary"
 	"git.fruzit.pp.ua/weather/api/internal/transport/http"
 )
 
@@ -36,7 +37,10 @@ func main() {
 			log.Fatal(err)
 		}
 
-		http.ServeHTTP(addr)
+		subscriptionService := primary.NewSubscriptionService()
+		weatherService := primary.NewWeatherService()
+
+		http.ServeHTTP(addr, subscriptionService, weatherService)
 
 	case CMD_HEALTH:
 		healthCmd := flag.NewFlagSet(CMD_HEALTH, flag.ExitOnError)

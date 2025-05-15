@@ -6,21 +6,21 @@ import (
 	"net/http"
 )
 
-type probeController struct{}
+type probe struct{}
 
-func NewProbeController(mux *http.ServeMux) *probeController {
-	c := &probeController{}
+func NewProbeController(mux *http.ServeMux) *probe {
+	c := &probe{}
 	mux.HandleFunc("GET /-/healthy", c.healthy)
 	mux.HandleFunc("GET /-/ready", c.ready)
 	return c
 }
 
-func (c *probeController) healthy(w http.ResponseWriter, r *http.Request) {
+func (c *probe) healthy(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Healthy: %s\n", r.RemoteAddr)
 	w.WriteHeader(http.StatusOK)
 }
 
-func (c *probeController) ready(w http.ResponseWriter, r *http.Request) {
+func (c *probe) ready(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Ready: %s\n", r.RemoteAddr)
 	w.WriteHeader(http.StatusOK)
 }

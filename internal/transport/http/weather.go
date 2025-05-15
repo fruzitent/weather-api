@@ -2,22 +2,24 @@ package http
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 	"net/url"
 
 	"git.fruzit.pp.ua/weather/api/internal/command"
+	"git.fruzit.pp.ua/weather/api/internal/service"
 )
 
-type weatherController struct{}
+type weather struct {
+	service service.IWeather
+}
 
-func NewWeatherController(mux *http.ServeMux) *weatherController {
-	c := &weatherController{}
+func NewWeatherController(mux *http.ServeMux, service service.IWeather) *weather {
+	c := &weather{service}
 	mux.HandleFunc("GET /weather", c.getWeather)
 	return c
 }
 
-func (c *weatherController) getWeather(w http.ResponseWriter, r *http.Request) {
+func (c *weather) getWeather(w http.ResponseWriter, r *http.Request) {
 	v, err := url.ParseQuery(r.URL.RawQuery)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -29,13 +31,16 @@ func (c *weatherController) getWeather(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "missing parameter (city)", http.StatusBadRequest)
 		return
 	}
-	log.Printf("GetWeather: city=%s\n", city)
+
+	res, err := c.service.GetWeather(&command.GetWeather{
+		City: city,
+	})
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(command.GetWeatherRes{
-		Temperature: 0,
-		Humidity:    0,
-		Description: "string",
-	})
+	json.NewEncoder(w).Encode(res)
 }

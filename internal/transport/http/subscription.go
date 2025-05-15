@@ -2,47 +2,61 @@ package http
 
 import (
 	"encoding/json"
-	"io"
-	"log"
 	"net/http"
 
 	"git.fruzit.pp.ua/weather/api/internal/command"
+	"git.fruzit.pp.ua/weather/api/internal/service"
 )
 
-type subscriptionController struct{}
+type subscription struct {
+	service service.ISubscription
+}
 
-func NewSubscriptionController(mux *http.ServeMux) *subscriptionController {
-	c := &subscriptionController{}
+func NewSubscriptionController(mux *http.ServeMux, service service.ISubscription) *subscription {
+	c := &subscription{service}
 	mux.HandleFunc("GET /confirm/{token}", c.getConfirm)
 	mux.HandleFunc("GET /unsubscribe/{token}", c.getUnsubscribe)
 	mux.HandleFunc("POST /subscribe", c.postSubscribe)
 	return c
 }
 
-func (c *subscriptionController) getConfirm(w http.ResponseWriter, r *http.Request) {
+func (c *subscription) getConfirm(w http.ResponseWriter, r *http.Request) {
 	token := r.PathValue("token")
-	log.Printf("GetConfirm: token=%s", token)
+
+	res, err := c.service.ConfirmEmail(&command.ConfirmEmail{
+		Token: token,
+	})
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(res)
 }
 
-func (c *subscriptionController) getUnsubscribe(w http.ResponseWriter, r *http.Request) {
+func (c *subscription) getUnsubscribe(w http.ResponseWriter, r *http.Request) {
 	token := r.PathValue("token")
-	log.Printf("GetUnsubscribe: token=%s\n", token)
+
+	res, err := c.service.Unsubscribe(&command.Unsubscribe{
+		Token: token,
+	})
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(res)
 }
 
-func (c *subscriptionController) postSubscribe(w http.ResponseWriter, r *http.Request) {
+func (c *subscription) postSubscribe(w http.ResponseWriter, r *http.Request) {
 	if ct := r.Header.Get("Content-Type"); ct != "application/json" {
 		http.Error(w, "invalid Content-Type", http.StatusBadRequest)
 		return
 	}
-
-	body, _ := io.ReadAll(r.Body)
-	log.Printf("PostSubscribe: body=%s\n", body)
 
 	s := &command.Subscribe{}
 	if err := json.NewDecoder(r.Body).Decode(&s); err != nil {
@@ -50,6 +64,13 @@ func (c *subscriptionController) postSubscribe(w http.ResponseWriter, r *http.Re
 		return
 	}
 
+	res, err := c.service.Subscribe(s)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(res)
 }
