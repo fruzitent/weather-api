@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -11,6 +12,7 @@ import (
 	"os"
 
 	"git.fruzit.pp.ua/weather/api/internal/config"
+	"git.fruzit.pp.ua/weather/api/internal/repo/sqlite"
 )
 
 type Weather struct {
@@ -100,6 +102,8 @@ const (
 )
 
 func main() {
+	ctx := context.Background()
+
 	if len(os.Args) < 2 {
 		log.Fatalf("not enough arguments")
 	}
@@ -110,6 +114,11 @@ func main() {
 	case CMD_DAEMON:
 		daemonCmd := flag.NewFlagSet(CMD_DAEMON, flag.ExitOnError)
 		daemonCmd.Parse(os.Args[2:])
+
+		_, err := sqlite.Open(ctx)
+		if err != nil {
+			log.Fatal(err)
+		}
 
 		mux := http.NewServeMux()
 		mux.HandleFunc("GET /confirm/{token}", GetConfirm)
