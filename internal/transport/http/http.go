@@ -1,18 +1,11 @@
 package http
 
-import (
-	"log"
-	"net/http"
+import "net/http"
 
-	"git.fruzit.pp.ua/weather/api/internal/service"
-)
+func NewServeMux() *http.ServeMux {
+	return http.NewServeMux()
+}
 
-func ServeHTTP(addr string, subscription service.ISubscription, weather service.IWeather) {
-	mux := http.NewServeMux()
-
-	_ = NewProbeController(mux)
-	_ = NewSubscriptionController(mux, subscription)
-	_ = NewWeatherController(mux, weather)
-
-	log.Fatal(http.ListenAndServe(addr, mux))
+func ListenAndServe(addr string, handler http.Handler) error {
+	return http.ListenAndServe(addr, handler)
 }

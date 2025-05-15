@@ -7,9 +7,10 @@ import (
 	"log"
 
 	"git.fruzit.pp.ua/weather/api/internal/config"
-	"git.fruzit.pp.ua/weather/api/internal/repo/sqlite"
-	"git.fruzit.pp.ua/weather/api/internal/service/primary"
+	repo "git.fruzit.pp.ua/weather/api/internal/repo/sqlite"
+	service "git.fruzit.pp.ua/weather/api/internal/service/primary"
 	"git.fruzit.pp.ua/weather/api/internal/transport/http"
+	transport "git.fruzit.pp.ua/weather/api/internal/transport/http"
 )
 
 const (
@@ -33,18 +34,21 @@ func main() {
 		daemonCmd := flag.NewFlagSet(CMD_DAEMON, flag.ExitOnError)
 		daemonCmd.Parse(args[1:])
 
-		db, err := sqlite.Open(ctx)
+		db, err := repo.Open(ctx)
 		if err != nil {
 			log.Fatal(err)
 		}
+		subscriptionRepo := repo.NewSubscriptionRepo(db)
+		weatherRepo := repo.NewWeatherRepo(db)
 
-		subscriptionRepo := sqlite.NewSubscriptionRepo(db)
-		weatherRepo := sqlite.NewWeatherRepo(db)
+		subscriptionService := service.NewSubscriptionService(subscriptionRepo)
+		weatherService := service.NewWeatherService(weatherRepo)
 
-		subscriptionService := primary.NewSubscriptionService(subscriptionRepo)
-		weatherService := primary.NewWeatherService(weatherRepo)
-
-		http.ServeHTTP(addr, subscriptionService, weatherService)
+		mux := transport.NewServeMux()
+		_ = transport.NewProbeController(mux)
+		_ = transport.NewSubscriptionController(mux, subscriptionService)
+		_ = transport.NewWeatherController(mux, weatherService)
+		log.Fatal(transport.ListenAndServe(addr, mux))
 
 	case CMD_HEALTH:
 		healthCmd := flag.NewFlagSet(CMD_HEALTH, flag.ExitOnError)
