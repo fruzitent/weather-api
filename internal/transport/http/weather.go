@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"git.fruzit.pp.ua/weather/api/internal/entity"
+	"git.fruzit.pp.ua/weather/api/internal/command"
 )
 
 type weatherController struct{}
@@ -33,7 +33,7 @@ func (c *weatherController) getWeather(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(entity.Weather{
+	json.NewEncoder(w).Encode(command.GetWeatherRes{
 		Temperature: 0,
 		Humidity:    0,
 		Description: "string",

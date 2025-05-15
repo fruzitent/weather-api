@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	"git.fruzit.pp.ua/weather/api/internal/entity"
+	"git.fruzit.pp.ua/weather/api/internal/command"
 )
 
 type subscriptionController struct{}
@@ -44,7 +44,7 @@ func (c *subscriptionController) postSubscribe(w http.ResponseWriter, r *http.Re
 	body, _ := io.ReadAll(r.Body)
 	log.Printf("PostSubscribe: body=%s\n", body)
 
-	s := &entity.Subscription{}
+	s := &command.Subscribe{}
 	if err := json.NewDecoder(r.Body).Decode(&s); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
