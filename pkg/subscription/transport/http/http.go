@@ -21,13 +21,12 @@ func New(mux *http.ServeMux, service service.IService) *Transport {
 }
 
 func (t *Transport) getConfirm(w http.ResponseWriter, r *http.Request) {
-	token := r.PathValue("token")
-
+	// TODO: Code 404 Invalid token
 	res, err := t.service.ConfirmEmail(&command.ConfirmEmail{
-		Token: token,
+		Token: r.PathValue("token"),
 	})
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -37,13 +36,12 @@ func (t *Transport) getConfirm(w http.ResponseWriter, r *http.Request) {
 }
 
 func (t *Transport) getUnsubscribe(w http.ResponseWriter, r *http.Request) {
-	token := r.PathValue("token")
-
+	// TODO: Code 404 Invalid token
 	res, err := t.service.Unsubscribe(&command.Unsubscribe{
-		Token: token,
+		Token: r.PathValue("token"),
 	})
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -53,11 +51,6 @@ func (t *Transport) getUnsubscribe(w http.ResponseWriter, r *http.Request) {
 }
 
 func (t *Transport) postSubscribe(w http.ResponseWriter, r *http.Request) {
-	if ct := r.Header.Get("Content-Type"); ct != "application/json" {
-		http.Error(w, "invalid Content-Type", http.StatusBadRequest)
-		return
-	}
-
 	s := &command.Subscribe{}
 	if err := json.NewDecoder(r.Body).Decode(&s); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -66,7 +59,7 @@ func (t *Transport) postSubscribe(w http.ResponseWriter, r *http.Request) {
 
 	res, err := t.service.Subscribe(s)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusConflict)
 		return
 	}
 

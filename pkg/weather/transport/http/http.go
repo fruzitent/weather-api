@@ -26,17 +26,11 @@ func (t *Transport) getWeather(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	city := v.Get("city")
-	if city == "" {
-		http.Error(w, "missing parameter (city)", http.StatusBadRequest)
-		return
-	}
-
 	res, err := t.service.GetWeather(&command.GetWeather{
-		City: city,
+		City: v.Get("city"),
 	})
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
