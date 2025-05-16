@@ -55,6 +55,7 @@ func main() {
 		_ = transportProbe.New(mux, serviceProbe)
 		_ = trasportSubscription.New(mux, serviceSubscription)
 		_ = transportWeather.New(mux, serviceWeather)
+		log.Printf("Listening on http://%s", addr)
 		log.Fatal(http.ListenAndServe(addr, mux))
 
 	case CMD_HEALTH:
