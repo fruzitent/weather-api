@@ -40,7 +40,7 @@ func main() {
 		daemonCmd := flag.NewFlagSet(CMD_DAEMON, flag.ExitOnError)
 		daemonCmd.Parse(args[1:])
 
-		db, err := sqlite.Open(ctx)
+		db, err := sqlite.Open(ctx, config.Sqlite.DataSourceName)
 		if err != nil {
 			log.Fatal(err)
 		}

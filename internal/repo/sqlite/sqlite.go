@@ -11,8 +11,8 @@ import (
 	"github.com/golang-migrate/migrate/v4/source/iofs"
 )
 
-func Open(ctx context.Context) (*sql.DB, error) {
-	db, err := open(ctx)
+func Open(ctx context.Context, dataSourceName string) (*sql.DB, error) {
+	db, err := open(ctx, dataSourceName)
 	if err != nil {
 		return nil, err
 	}
@@ -24,8 +24,8 @@ func Open(ctx context.Context) (*sql.DB, error) {
 	return db, nil
 }
 
-func open(ctx context.Context) (*sql.DB, error) {
-	db, err := sql.Open("sqlite", "db.sqlite")
+func open(ctx context.Context, dataSourceName string) (*sql.DB, error) {
+	db, err := sql.Open("sqlite", dataSourceName)
 	if err != nil {
 		return nil, err
 	}
