@@ -1,6 +1,6 @@
 package service
 
-type IProbe interface {
+type IService interface {
 	IsHealthy() error
 	IsReady() error
 }

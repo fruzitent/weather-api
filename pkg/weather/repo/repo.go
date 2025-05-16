@@ -1,3 +1,3 @@
 package repo
 
-type IWeather interface{}
+type IRepo interface{}

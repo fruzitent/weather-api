@@ -1,3 +1,3 @@
 package repo
 
-type ISubscription interface{}
+type IRepo interface{}

@@ -8,22 +8,22 @@ import (
 	"git.fruzit.pp.ua/weather/api/pkg/subscription/service"
 )
 
-type subscription struct {
-	service service.ISubscription
+type Transport struct {
+	service service.IService
 }
 
-func New(mux *http.ServeMux, service service.ISubscription) *subscription {
-	c := &subscription{service}
+func New(mux *http.ServeMux, service service.IService) *Transport {
+	c := &Transport{service}
 	mux.HandleFunc("GET /confirm/{token}", c.getConfirm)
 	mux.HandleFunc("GET /unsubscribe/{token}", c.getUnsubscribe)
 	mux.HandleFunc("POST /subscribe", c.postSubscribe)
 	return c
 }
 
-func (c *subscription) getConfirm(w http.ResponseWriter, r *http.Request) {
+func (t *Transport) getConfirm(w http.ResponseWriter, r *http.Request) {
 	token := r.PathValue("token")
 
-	res, err := c.service.ConfirmEmail(&command.ConfirmEmail{
+	res, err := t.service.ConfirmEmail(&command.ConfirmEmail{
 		Token: token,
 	})
 	if err != nil {
@@ -36,10 +36,10 @@ func (c *subscription) getConfirm(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(res)
 }
 
-func (c *subscription) getUnsubscribe(w http.ResponseWriter, r *http.Request) {
+func (t *Transport) getUnsubscribe(w http.ResponseWriter, r *http.Request) {
 	token := r.PathValue("token")
 
-	res, err := c.service.Unsubscribe(&command.Unsubscribe{
+	res, err := t.service.Unsubscribe(&command.Unsubscribe{
 		Token: token,
 	})
 	if err != nil {
@@ -52,7 +52,7 @@ func (c *subscription) getUnsubscribe(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(res)
 }
 
-func (c *subscription) postSubscribe(w http.ResponseWriter, r *http.Request) {
+func (t *Transport) postSubscribe(w http.ResponseWriter, r *http.Request) {
 	if ct := r.Header.Get("Content-Type"); ct != "application/json" {
 		http.Error(w, "invalid Content-Type", http.StatusBadRequest)
 		return
@@ -64,7 +64,7 @@ func (c *subscription) postSubscribe(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res, err := c.service.Subscribe(s)
+	res, err := t.service.Subscribe(s)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

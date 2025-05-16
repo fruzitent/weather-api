@@ -6,10 +6,10 @@ import (
 	"git.fruzit.pp.ua/weather/api/pkg/subscription/repo"
 )
 
-type subscription struct {
+type Repo struct {
 	db *sql.DB
 }
 
-func New(db *sql.DB) repo.ISubscription {
-	return &subscription{db}
+func New(db *sql.DB) repo.IRepo {
+	return &Repo{db}
 }

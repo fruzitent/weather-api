@@ -1,15 +1,15 @@
 package primary
 
-type probe struct{}
+type Service struct{}
 
-func New() *probe {
-	return &probe{}
+func New() *Service {
+	return &Service{}
 }
 
-func (s *probe) IsHealthy() error {
+func (s *Service) IsHealthy() error {
 	return nil
 }
 
-func (s *probe) IsReady() error {
+func (s *Service) IsReady() error {
 	return nil
 }
