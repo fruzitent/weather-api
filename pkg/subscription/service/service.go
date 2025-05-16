@@ -1,6 +1,6 @@
 package service
 
-import "git.fruzit.pp.ua/weather/api/internal/command"
+import "git.fruzit.pp.ua/weather/api/pkg/subscription/command"
 
 type ISubscription interface {
 	ConfirmEmail(c *command.ConfirmEmail) (*command.ConfirmEmailRes, error)

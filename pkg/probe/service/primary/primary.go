@@ -2,7 +2,7 @@ package primary
 
 type probe struct{}
 
-func NewProbeService() *probe {
+func New() *probe {
 	return &probe{}
 }
 

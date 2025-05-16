@@ -13,6 +13,7 @@ FROM scratch AS source-code
 
 COPY --link ["./cmd/", "./cmd/"]
 COPY --link ["./internal/", "./internal/"]
+COPY --link ["./pkg/", "./pkg/"]
 
 FROM --platform=$BUILDPLATFORM docker.io/library/golang:1.24.3-alpine3.21@sha256:ef18ee7117463ac1055f5a370ed18b8750f01589f13ea0b48642f5792b234044 AS deps
 

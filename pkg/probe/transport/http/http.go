@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"net/http"
 
-	"git.fruzit.pp.ua/weather/api/internal/service"
+	"git.fruzit.pp.ua/weather/api/pkg/probe/service"
 )
 
 type probe struct {
 	service service.IProbe
 }
 
-func NewProbeController(mux *http.ServeMux, service service.IProbe) *probe {
+func New(mux *http.ServeMux, service service.IProbe) *probe {
 	c := &probe{service}
 	mux.HandleFunc("GET /-/healthy", c.getHealthy)
 	mux.HandleFunc("GET /-/ready", c.getReady)

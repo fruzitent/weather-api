@@ -4,15 +4,15 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"git.fruzit.pp.ua/weather/api/internal/command"
-	"git.fruzit.pp.ua/weather/api/internal/service"
+	"git.fruzit.pp.ua/weather/api/pkg/subscription/command"
+	"git.fruzit.pp.ua/weather/api/pkg/subscription/service"
 )
 
 type subscription struct {
 	service service.ISubscription
 }
 
-func NewSubscriptionController(mux *http.ServeMux, service service.ISubscription) *subscription {
+func New(mux *http.ServeMux, service service.ISubscription) *subscription {
 	c := &subscription{service}
 	mux.HandleFunc("GET /confirm/{token}", c.getConfirm)
 	mux.HandleFunc("GET /unsubscribe/{token}", c.getUnsubscribe)

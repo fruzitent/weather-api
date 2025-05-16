@@ -5,15 +5,15 @@ import (
 	"net/http"
 	"net/url"
 
-	"git.fruzit.pp.ua/weather/api/internal/command"
-	"git.fruzit.pp.ua/weather/api/internal/service"
+	"git.fruzit.pp.ua/weather/api/pkg/weather/command"
+	"git.fruzit.pp.ua/weather/api/pkg/weather/service"
 )
 
 type weather struct {
 	service service.IWeather
 }
 
-func NewWeatherController(mux *http.ServeMux, service service.IWeather) *weather {
+func New(mux *http.ServeMux, service service.IWeather) *weather {
 	c := &weather{service}
 	mux.HandleFunc("GET /weather", c.getWeather)
 	return c

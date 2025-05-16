@@ -1,16 +1,16 @@
 package primary
 
 import (
-	"git.fruzit.pp.ua/weather/api/internal/command"
-	"git.fruzit.pp.ua/weather/api/internal/repo"
-	"git.fruzit.pp.ua/weather/api/internal/service"
+	"git.fruzit.pp.ua/weather/api/pkg/weather/command"
+	"git.fruzit.pp.ua/weather/api/pkg/weather/repo"
+	"git.fruzit.pp.ua/weather/api/pkg/weather/service"
 )
 
 type weather struct {
 	repo repo.IWeather
 }
 
-func NewWeatherService(repo repo.IWeather) service.IWeather {
+func New(repo repo.IWeather) service.IWeather {
 	return &weather{repo}
 }
 
