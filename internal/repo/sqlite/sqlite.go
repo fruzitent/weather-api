@@ -4,11 +4,13 @@ import (
 	"context"
 	"database/sql"
 	"embed"
-	"errors"
+	"io/fs"
+	"log"
+	"os"
 
-	"github.com/golang-migrate/migrate/v4"
-	"github.com/golang-migrate/migrate/v4/database/sqlite"
-	"github.com/golang-migrate/migrate/v4/source/iofs"
+	"ariga.io/atlas-go-sdk/atlasexec"
+	_ "github.com/ncruces/go-sqlite3/driver"
+	_ "github.com/ncruces/go-sqlite3/embed"
 )
 
 func Open(ctx context.Context, dataSourceName string) (*sql.DB, error) {
@@ -17,7 +19,7 @@ func Open(ctx context.Context, dataSourceName string) (*sql.DB, error) {
 		return nil, err
 	}
 
-	if err := runMigrations(db); err != nil {
+	if err := migration(ctx, dataSourceName); err != nil {
 		return nil, err
 	}
 
@@ -25,7 +27,7 @@ func Open(ctx context.Context, dataSourceName string) (*sql.DB, error) {
 }
 
 func open(ctx context.Context, dataSourceName string) (*sql.DB, error) {
-	db, err := sql.Open("sqlite", dataSourceName)
+	db, err := sql.Open("sqlite3", dataSourceName)
 	if err != nil {
 		return nil, err
 	}
@@ -37,31 +39,60 @@ func open(ctx context.Context, dataSourceName string) (*sql.DB, error) {
 	return db, nil
 }
 
-//go:embed migrations/*.sql
-var migrations embed.FS
+//go:embed schema.sql
+var embedded embed.FS
 
-func runMigrations(db *sql.DB) error {
-	fs, err := iofs.New(migrations, "migrations")
+func migration(ctx context.Context, dataSourceName string) error {
+	oldData, err := os.ReadFile(dataSourceName)
+	if err != nil {
+		return err
+	}
+	schema, err := embedded.ReadFile("schema.sql")
 	if err != nil {
 		return err
 	}
 
-	driver, err := sqlite.WithInstance(db, &sqlite.Config{})
+	dir, err := atlasexec.NewWorkingDir(func(ce *atlasexec.WorkingDir) error {
+		if _, err := ce.WriteFile("db.sqlite3", oldData); err != nil {
+			return err
+		}
+		if _, err := ce.WriteFile("schema.sql", schema); err != nil {
+			return err
+		}
+		return nil
+	})
 	if err != nil {
 		return err
 	}
 
-	migrator, err := migrate.NewWithInstance("iofs", fs, "sqlite", driver)
+	client, err := atlasexec.NewClient(dir.Path(), "atlas")
 	if err != nil {
 		return err
 	}
 
-	if err := migrator.Up(); err != nil && !errors.Is(err, migrate.ErrNoChange) {
+	res, err := client.SchemaApply(ctx, &atlasexec.SchemaApplyParams{
+		AutoApprove: true,
+		DevURL:      "sqlite://dev.sqlite3?mode=memory",
+		To:          "file://schema.sql",
+		URL:         "sqlite://db.sqlite3",
+	})
+	if err != nil {
 		return err
 	}
 
-	if err := fs.Close(); err != nil {
-		return err
+	log.Printf("Applied %d migrations\n", len(res.Changes.Applied))
+	if len(res.Changes.Applied) > 0 {
+		newData, err := fs.ReadFile(dir.DirFS(), "db.sqlite3")
+		if err != nil {
+			return err
+		}
+		info, err := os.Stat(dataSourceName)
+		if err != nil {
+			return err
+		}
+		if err := os.WriteFile(dataSourceName, newData, info.Mode().Perm()); err != nil {
+			return err
+		}
 	}
 
 	return nil

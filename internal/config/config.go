@@ -23,7 +23,7 @@ func NewConfig() *Config {
 
 	flag.StringVar(&config.Http.Host, "http.host", "[::]", "")
 	flag.IntVar(&config.Http.Port, "http.port", 8000, "")
-	flag.StringVar(&config.Sqlite.DataSourceName, "sqlite.dataSourceName", "db.sqlite", "")
+	flag.StringVar(&config.Sqlite.DataSourceName, "sqlite.dataSourceName", "db.sqlite3", "")
 	flag.Parse()
 
 	return config
