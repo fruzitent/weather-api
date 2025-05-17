@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"os"
 )
 
 const BASE_URL = "https://api.weatherapi.com/v1"
@@ -24,14 +23,10 @@ type WeatherApi struct {
 	Secret string
 }
 
-func NewWeatherAPI(secretFile string) (*WeatherApi, error) {
-	secret, err := os.ReadFile(secretFile)
-	if err != nil {
-		return nil, err
-	}
+func NewWeatherAPI(secret string) (*WeatherApi, error) {
 	return &WeatherApi{
 		client: &http.Client{},
-		Secret: string(secret),
+		Secret: secret,
 	}, nil
 }
 

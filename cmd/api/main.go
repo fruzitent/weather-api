@@ -28,7 +28,10 @@ const (
 func main() {
 	ctx := context.Background()
 
-	config := config.NewConfig()
+	config, err := config.NewConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
 	addr := fmt.Sprintf("%s:%d", config.Http.Host, config.Http.Port)
 
 	args := flag.Args()
@@ -48,7 +51,7 @@ func main() {
 		repoSubscription := repoSubscription.New(db)
 		repoWeather := repoWeather.New(db)
 
-		providerWeather, err := weatherapi.NewWeatherAPI(config.WeatherApi.SecretFile)
+		providerWeather, err := weatherapi.NewWeatherAPI(config.WeatherApi.Secret)
 		if err != nil {
 			log.Fatal(err)
 		}

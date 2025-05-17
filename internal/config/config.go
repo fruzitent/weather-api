@@ -1,8 +1,6 @@
 package config
 
-import (
-	"flag"
-)
+import "flag"
 
 type Config struct {
 	Http       Http
@@ -20,17 +18,24 @@ type Sqlite struct {
 }
 
 type WeatherApi struct {
-	SecretFile string
+	Secret string
 }
 
-func NewConfig() *Config {
+func NewConfig() (*Config, error) {
 	config := &Config{}
+	var err error
 
 	flag.StringVar(&config.Http.Host, "http.host", "[::]", "")
 	flag.IntVar(&config.Http.Port, "http.port", 8000, "")
 	flag.StringVar(&config.Sqlite.DataSourceName, "sqlite.dataSourceName", "db.sqlite3", "")
-	flag.StringVar(&config.WeatherApi.SecretFile, "weatherApi.secretFile", "weatherapi-token", "")
+
+	flag.StringVar(&config.WeatherApi.Secret, "weatherApi.secret", "", "")
+
 	flag.Parse()
 
-	return config
+	if config.WeatherApi.Secret, err = loadSecret(config.WeatherApi.Secret, "weatherApi.secret"); err != nil {
+		return nil, err
+	}
+
+	return config, nil
 }
