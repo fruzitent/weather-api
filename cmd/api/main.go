@@ -8,6 +8,7 @@ import (
 
 	"git.fruzit.pp.ua/weather/api/internal/config"
 	"git.fruzit.pp.ua/weather/api/internal/repo/sqlite"
+	"git.fruzit.pp.ua/weather/api/internal/repo/weatherapi"
 	"git.fruzit.pp.ua/weather/api/internal/transport/http"
 	serviceProbe "git.fruzit.pp.ua/weather/api/pkg/probe/service/primary"
 	transportProbe "git.fruzit.pp.ua/weather/api/pkg/probe/transport/http"
@@ -47,9 +48,14 @@ func main() {
 		repoSubscription := repoSubscription.New(db)
 		repoWeather := repoWeather.New(db)
 
+		providerWeather, err := weatherapi.NewWeatherAPI(config.WeatherApi.SecretFile)
+		if err != nil {
+			log.Fatal(err)
+		}
+
 		serviceProbe := serviceProbe.New()
 		serviceSubscription := serviceSubscription.New(repoSubscription)
-		serviceWeather := serviceWeather.New(repoWeather)
+		serviceWeather := serviceWeather.New(repoWeather, providerWeather)
 
 		mux := http.NewServeMux()
 		_ = transportProbe.New(mux, serviceProbe)

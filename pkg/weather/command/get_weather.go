@@ -5,7 +5,7 @@ type GetWeather struct {
 }
 
 type GetWeatherRes struct {
-	Temperature float32 // Current temperature
-	Humidity    float32 // Current humidity percentage
+	Temperature float64 // Current temperature
+	Humidity    int     // Current humidity percentage
 	Description string  // Weather description
 }
