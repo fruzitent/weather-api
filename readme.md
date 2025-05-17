@@ -11,5 +11,12 @@ Requirements:
 
 ```shell
 gum input --password | install -D "/dev/stdin" "./weatherapi-token"
-weather-api daemon
+weather-api \
+  --smtp.from "weather@example.org" \
+  --smtp.host "mail.example.org" \
+  --smtp.password "file://smtp-password" \
+  --smtp.port 465 \
+  --smtp.username "smtp-username" \
+  --weatherApi.secret "file://weatherapi-secret" \
+  daemon
 ```
