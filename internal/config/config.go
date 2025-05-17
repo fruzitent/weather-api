@@ -4,13 +4,14 @@ import (
 	"flag"
 
 	"git.fruzit.pp.ua/weather/api/internal/repo/smtp"
+	"git.fruzit.pp.ua/weather/api/internal/repo/weatherapi"
 )
 
 type Config struct {
 	Http       Http
 	Smtp       smtp.Config
 	Sqlite     Sqlite
-	WeatherApi WeatherApi
+	WeatherApi weatherapi.Config
 }
 
 type Http struct {
@@ -20,10 +21,6 @@ type Http struct {
 
 type Sqlite struct {
 	DataSourceName string
-}
-
-type WeatherApi struct {
-	Secret string
 }
 
 func NewConfig() (*Config, error) {

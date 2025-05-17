@@ -18,6 +18,10 @@ func (e *Error) Error() string {
 	return fmt.Sprintf("%d %s", e.Code, e.Message)
 }
 
+type Config struct {
+	Secret string
+}
+
 type WeatherApi struct {
 	client *http.Client
 	Secret string
