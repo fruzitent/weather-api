@@ -1,11 +1,12 @@
 package http
 
 import (
-	"encoding/json"
+	"context"
 	"net/http"
 
 	"git.fruzit.pp.ua/weather/api/pkg/subscription/command"
 	"git.fruzit.pp.ua/weather/api/pkg/subscription/service"
+	"git.fruzit.pp.ua/weather/api/pkg/subscription/transport/http/openapi"
 )
 
 type Transport struct {
@@ -14,56 +15,51 @@ type Transport struct {
 
 func New(mux *http.ServeMux, service service.IService) *Transport {
 	c := &Transport{service}
-	mux.HandleFunc("GET /confirm/{token}", c.getConfirm)
-	mux.HandleFunc("GET /unsubscribe/{token}", c.getUnsubscribe)
-	mux.HandleFunc("POST /subscribe", c.postSubscribe)
+	_ = openapi.HandlerFromMux(openapi.NewStrictHandler(c, []openapi.StrictMiddlewareFunc{}), mux)
 	return c
 }
 
-func (t *Transport) getConfirm(w http.ResponseWriter, r *http.Request) {
-	// TODO: Code 404 Invalid token
-	res, err := t.service.ConfirmEmail(&command.ConfirmEmail{
-		Token: r.PathValue("token"),
+var _ openapi.StrictServerInterface = (*Transport)(nil)
+
+func (t *Transport) ConfirmSubscription(ctx context.Context, request openapi.ConfirmSubscriptionRequestObject) (openapi.ConfirmSubscriptionResponseObject, error) {
+	_, err := t.service.ConfirmEmail(&command.ConfirmEmail{
+		Token: request.Token,
 	})
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+		return nil, err
 	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(res)
+	return &openapi.ConfirmSubscription200Response{}, nil
 }
 
-func (t *Transport) getUnsubscribe(w http.ResponseWriter, r *http.Request) {
-	// TODO: Code 404 Invalid token
-	res, err := t.service.Unsubscribe(&command.Unsubscribe{
-		Token: r.PathValue("token"),
+func (t *Transport) Subscribe(ctx context.Context, request openapi.SubscribeRequestObject) (openapi.SubscribeResponseObject, error) {
+	cmd := &command.Subscribe{}
+
+	if request.FormdataBody != nil {
+		cmd.City = request.FormdataBody.City
+		cmd.Email = request.FormdataBody.Email
+		cmd.Frequency = string(request.FormdataBody.Frequency)
+	}
+
+	if request.JSONBody != nil {
+		cmd.City = request.JSONBody.City
+		cmd.Email = request.JSONBody.Email
+		cmd.Frequency = string(request.JSONBody.Frequency)
+	}
+
+	_, err := t.service.Subscribe(cmd)
+	if err != nil {
+		return nil, err
+	}
+
+	return &openapi.Subscribe200Response{}, nil
+}
+
+func (t *Transport) Unsubscribe(ctx context.Context, request openapi.UnsubscribeRequestObject) (openapi.UnsubscribeResponseObject, error) {
+	_, err := t.service.Unsubscribe(&command.Unsubscribe{
+		Token: request.Token,
 	})
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+		return nil, err
 	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(res)
-}
-
-func (t *Transport) postSubscribe(w http.ResponseWriter, r *http.Request) {
-	s := &command.Subscribe{}
-	if err := json.NewDecoder(r.Body).Decode(&s); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	res, err := t.service.Subscribe(s)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusConflict)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(res)
+	return &openapi.Unsubscribe200Response{}, nil
 }

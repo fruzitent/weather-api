@@ -30,7 +30,11 @@ COPY --from=source-code --link ["/", "/usr/local/src/weather-api/"]
 
 ARG TARGETPLATFORM
 
-RUN --mount=type=cache,target=/root/.cache/go-build xx-go build -C "/usr/local/src/weather-api/" "./cmd/api/" && xx-verify "/usr/local/src/weather-api/api"
+RUN --mount=type=cache,target=/root/.cache/go-build <<EOF
+  go generate -C "/usr/local/src/weather-api/" "./..."
+  xx-go build -C "/usr/local/src/weather-api/" "./cmd/api/"
+  xx-verify "/usr/local/src/weather-api/api"
+EOF
 
 FROM scratch AS runner
 

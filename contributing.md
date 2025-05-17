@@ -20,5 +20,6 @@ Requirements:
 - [Go](https://go.dev/doc/install) toolchain
 
 ```shell
+go generate "./..."
 go build "./cmd/api/main.go"
 ```

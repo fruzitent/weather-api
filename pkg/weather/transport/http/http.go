@@ -1,12 +1,12 @@
 package http
 
 import (
-	"encoding/json"
+	"context"
 	"net/http"
-	"net/url"
 
 	"git.fruzit.pp.ua/weather/api/pkg/weather/command"
 	"git.fruzit.pp.ua/weather/api/pkg/weather/service"
+	"git.fruzit.pp.ua/weather/api/pkg/weather/transport/http/openapi"
 )
 
 type Transport struct {
@@ -15,26 +15,24 @@ type Transport struct {
 
 func New(mux *http.ServeMux, service service.IService) *Transport {
 	c := &Transport{service}
-	mux.HandleFunc("GET /weather", c.getWeather)
+	_ = openapi.HandlerFromMux(openapi.NewStrictHandler(c, []openapi.StrictMiddlewareFunc{}), mux)
 	return c
 }
 
-func (t *Transport) getWeather(w http.ResponseWriter, r *http.Request) {
-	v, err := url.ParseQuery(r.URL.RawQuery)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
+var _ openapi.StrictServerInterface = (*Transport)(nil)
 
+func (t *Transport) GetWeather(ctx context.Context, request openapi.GetWeatherRequestObject) (openapi.GetWeatherResponseObject, error) {
 	res, err := t.service.GetWeather(&command.GetWeather{
-		City: v.Get("city"),
+		City: request.Params.City,
 	})
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
+		return nil, err
 	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(res)
+	humidity := float32(res.Humidity)
+	temperature := float32(res.Temperature)
+	return openapi.GetWeather200JSONResponse{
+		Description: &res.Description,
+		Humidity:    &humidity,
+		Temperature: &temperature,
+	}, nil
 }

@@ -5,11 +5,11 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net/http"
 
 	"git.fruzit.pp.ua/weather/api/internal/config"
 	"git.fruzit.pp.ua/weather/api/internal/repo/sqlite"
 	"git.fruzit.pp.ua/weather/api/internal/repo/weatherapi"
-	"git.fruzit.pp.ua/weather/api/internal/transport/http"
 	serviceProbe "git.fruzit.pp.ua/weather/api/pkg/probe/service/primary"
 	transportProbe "git.fruzit.pp.ua/weather/api/pkg/probe/transport/http"
 	repoSubscription "git.fruzit.pp.ua/weather/api/pkg/subscription/repo/sqlite"
@@ -59,8 +59,8 @@ func main() {
 
 		mux := http.NewServeMux()
 		_ = transportProbe.New(mux, serviceProbe)
-		_ = trasportSubscription.New(mux, serviceSubscription)
 		_ = transportWeather.New(mux, serviceWeather)
+		_ = trasportSubscription.New(mux, serviceSubscription)
 		log.Printf("Listening on http://%s", addr)
 		log.Fatal(http.ListenAndServe(addr, mux))
 
