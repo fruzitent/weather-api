@@ -31,6 +31,7 @@ func (t *Transport) ConfirmSubscription(ctx context.Context, request openapi.Con
 	return &openapi.ConfirmSubscription200Response{}, nil
 }
 
+// TODO: DOES NOT HANDLE 406 https://github.com/oapi-codegen/oapi-codegen/issues/736
 func (t *Transport) Subscribe(ctx context.Context, request openapi.SubscribeRequestObject) (openapi.SubscribeResponseObject, error) {
 	cmd := &command.Subscribe{}
 
