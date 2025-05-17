@@ -1,5 +1,10 @@
 # todo
 
+## Codegen
+
+- [ ] [bob](https://github.com/stephenafamo/bob)
+- [ ] [oapi-codegen](https://github.com/oapi-codegen/oapi-codegen)
+
 ## Database
 
 - [ ] PostgreSQL
