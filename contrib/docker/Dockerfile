@@ -1,6 +1,7 @@
 # syntax=docker.io/docker/dockerfile:1.15.1-labs@sha256:94edd5b349df43675bd6f542e2b9a24e7177432dec45fe3066bfcf2ab14c4355
 # @help: https://docs.docker.com/reference/dockerfile
 
+FROM docker.io/arigaio/atlas:0.33.1-community-distroless@sha256:c948fe3215448ca99ed081a40d857d7c7fdb610b3e3e07ab433202616803b38a AS atlas
 FROM --platform=$BUILDPLATFORM docker.io/tonistiigi/xx:1.6.1@sha256:923441d7c25f1e2eb5789f82d987693c47b8ed987c4ab3b075d6ed2b5d6779a3 AS xx
 
 FROM scratch AS source-deps
@@ -33,6 +34,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build xx-go build -C "/usr/local/s
 
 FROM scratch AS runner
 
+COPY --from=atlas --chmod=0755 --link ["/atlas", "/usr/local/bin/atlas"]
 COPY --from=builder --link ["/etc/ssl/certs/ca-certificates.crt", "/etc/ssl/certs/ca-certificates.crt"]
 COPY --from=builder --link ["/usr/local/src/weather-api/api", "/usr/local/bin/weather-api"]
 
