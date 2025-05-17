@@ -13,13 +13,13 @@ type Transport struct {
 	service service.IService
 }
 
+var _ openapi.StrictServerInterface = (*Transport)(nil)
+
 func New(mux *http.ServeMux, service service.IService) *Transport {
 	c := &Transport{service}
 	_ = openapi.HandlerFromMux(openapi.NewStrictHandler(c, []openapi.StrictMiddlewareFunc{}), mux)
 	return c
 }
-
-var _ openapi.StrictServerInterface = (*Transport)(nil)
 
 func (t *Transport) GetWeather(ctx context.Context, request openapi.GetWeatherRequestObject) (openapi.GetWeatherResponseObject, error) {
 	res, err := t.service.GetWeather(&command.GetWeather{

@@ -13,13 +13,13 @@ type Transport struct {
 	service service.IService
 }
 
+var _ openapi.StrictServerInterface = (*Transport)(nil)
+
 func New(mux *http.ServeMux, service service.IService) *Transport {
 	c := &Transport{service}
 	_ = openapi.HandlerFromMux(openapi.NewStrictHandler(c, []openapi.StrictMiddlewareFunc{}), mux)
 	return c
 }
-
-var _ openapi.StrictServerInterface = (*Transport)(nil)
 
 func (t *Transport) ConfirmSubscription(ctx context.Context, request openapi.ConfirmSubscriptionRequestObject) (openapi.ConfirmSubscriptionResponseObject, error) {
 	_, err := t.service.ConfirmEmail(&command.ConfirmEmail{
