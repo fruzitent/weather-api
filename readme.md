@@ -10,7 +10,7 @@ Requirements:
 - [atlas](https://atlasgo.io/getting-started#installation)
 
 ```shell
-gum input --password | install -D "/dev/stdin" "./weatherapi-token"
+gum input --password | install -D "/dev/stdin" "./weatherapi-secret"
 weather-api \
   --smtp.from "weather@example.org" \
   --smtp.host "mail.example.org" \
