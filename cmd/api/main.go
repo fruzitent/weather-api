@@ -10,10 +10,10 @@ import (
 	"git.fruzit.pp.ua/weather/api/internal/config"
 	"git.fruzit.pp.ua/weather/api/internal/lib/http"
 	"git.fruzit.pp.ua/weather/api/internal/lib/sqlite"
-	sqliteUser "git.fruzit.pp.ua/weather/api/pkg/user/adapter/driven/sqlite"
-	httpUser "git.fruzit.pp.ua/weather/api/pkg/user/adapter/driving/http"
-	sqliteWeather "git.fruzit.pp.ua/weather/api/pkg/weather/adapter/driven/sqlite"
-	httpWeather "git.fruzit.pp.ua/weather/api/pkg/weather/adapter/driving/http"
+	httpUser "git.fruzit.pp.ua/weather/api/pkg/user/adapter/primary/http"
+	sqliteUser "git.fruzit.pp.ua/weather/api/pkg/user/adapter/secondary/sqlite"
+	httpWeather "git.fruzit.pp.ua/weather/api/pkg/weather/adapter/primary/http"
+	sqliteWeather "git.fruzit.pp.ua/weather/api/pkg/weather/adapter/secondary/sqlite"
 )
 
 const (

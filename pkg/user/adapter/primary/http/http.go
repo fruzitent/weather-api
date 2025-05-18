@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"git.fruzit.pp.ua/weather/api/internal/lib/http"
-	"git.fruzit.pp.ua/weather/api/pkg/user/adapter/driving/http/oapi_gen"
+	"git.fruzit.pp.ua/weather/api/pkg/user/adapter/primary/http/oapi_gen"
 )
 
 type Http struct{}

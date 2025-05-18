@@ -6,7 +6,7 @@ package factory
 import (
 	"context"
 
-	models "git.fruzit.pp.ua/weather/api/pkg/weather/adapter/driven/sqlite/bobgen_gen"
+	models "git.fruzit.pp.ua/weather/api/pkg/weather/adapter/secondary/sqlite/bobgen_gen"
 )
 
 type contextKey string
