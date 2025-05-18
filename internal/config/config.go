@@ -4,24 +4,17 @@ import (
 	"flag"
 	"net/mail"
 
-	"git.fruzit.pp.ua/weather/api/internal/repo/smtp"
-	"git.fruzit.pp.ua/weather/api/internal/repo/weatherapi"
+	"git.fruzit.pp.ua/weather/api/internal/lib/http"
+	"git.fruzit.pp.ua/weather/api/internal/lib/smtp"
+	"git.fruzit.pp.ua/weather/api/internal/lib/sqlite"
+	"git.fruzit.pp.ua/weather/api/internal/lib/weatherapi"
 )
 
 type Config struct {
-	Http       Http
+	Http       http.Config
 	Smtp       smtp.Config
-	Sqlite     Sqlite
-	WeatherApi weatherapi.Config
-}
-
-type Http struct {
-	Host string
-	Port int
-}
-
-type Sqlite struct {
-	DataSourceName string
+	Sqlite     sqlite.Config
+	Weatherapi weatherapi.Config
 }
 
 func NewConfig() (*Config, error) {
@@ -46,7 +39,7 @@ func NewConfig() (*Config, error) {
 
 	flag.StringVar(&config.Sqlite.DataSourceName, "sqlite.dataSourceName", "db.sqlite3", "")
 
-	flag.StringVar(&config.WeatherApi.Secret, "weatherApi.secret", "", "")
+	flag.StringVar(&config.Weatherapi.Secret, "weatherapi.secret", "", "")
 
 	flag.Parse()
 
@@ -54,7 +47,7 @@ func NewConfig() (*Config, error) {
 		return nil, err
 	}
 
-	if config.WeatherApi.Secret, err = loadSecret(config.WeatherApi.Secret, "weatherApi.secret"); err != nil {
+	if config.Weatherapi.Secret, err = loadSecret(config.Weatherapi.Secret, "weatherapi.secret"); err != nil {
 		return nil, err
 	}
 

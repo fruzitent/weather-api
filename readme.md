@@ -17,6 +17,6 @@ weather-api \
   --smtp.password "file://smtp-password" \
   --smtp.port 465 \
   --smtp.username "smtp-username" \
-  --weatherApi.secret "file://weatherapi-secret" \
+  --weatherapi.secret "file://weatherapi-secret" \
   daemon
 ```
