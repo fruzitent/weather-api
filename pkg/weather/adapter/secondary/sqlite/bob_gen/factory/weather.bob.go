@@ -7,7 +7,7 @@ import (
 	"context"
 	"testing"
 
-	models "git.fruzit.pp.ua/weather/api/pkg/weather/adapter/secondary/sqlite/bobgen_gen"
+	models "git.fruzit.pp.ua/weather/api/pkg/weather/adapter/secondary/sqlite/bob_gen"
 	"github.com/aarondl/opt/omit"
 	"github.com/jaswdr/faker/v2"
 	"github.com/stephenafamo/bob"

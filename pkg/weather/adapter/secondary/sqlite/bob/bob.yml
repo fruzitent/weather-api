@@ -2,6 +2,6 @@
 
 sql:
   dialect: "sqlite"
-  output: "../bobgen_gen"
+  output: "../bob_gen/"
   pattern: "schema.sql"
-  pkgname: "bobgen_gen"
+  pkgname: "bob_gen"
