@@ -15,7 +15,7 @@ func loadSecret(s string, key string) (string, error) {
 		return s, nil
 	}
 
-	data, err := os.ReadFile(strings.TrimPrefix(s, "file://"))
+	data, err := os.ReadFile(os.ExpandEnv(strings.TrimPrefix(s, "file://")))
 	if err != nil {
 		return "", err
 	}
