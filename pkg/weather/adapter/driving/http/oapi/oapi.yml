@@ -6,5 +6,5 @@ generate:
   models: true
   std-http-server: true
   strict-server: true
-output: "openapi_gen.go"
-package: "openapi"
+output: "../oapi_gen/oapi_gen.go"
+package: "oapi_gen"

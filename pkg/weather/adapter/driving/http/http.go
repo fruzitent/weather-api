@@ -4,19 +4,19 @@ import (
 	"context"
 
 	"git.fruzit.pp.ua/weather/api/internal/lib/http"
-	"git.fruzit.pp.ua/weather/api/pkg/weather/adapter/driving/http/openapi"
+	"git.fruzit.pp.ua/weather/api/pkg/weather/adapter/driving/http/oapi_gen"
 )
 
 type Http struct{}
 
-var _ openapi.StrictServerInterface = (*Http)(nil)
+var _ oapi_gen.StrictServerInterface = (*Http)(nil)
 
 func New(mux *http.ServeMux) *Http {
 	a := &Http{}
-	_ = openapi.HandlerFromMux(openapi.NewStrictHandler(a, []openapi.StrictMiddlewareFunc{}), mux)
+	_ = oapi_gen.HandlerFromMux(oapi_gen.NewStrictHandler(a, []oapi_gen.StrictMiddlewareFunc{}), mux)
 	return a
 }
 
-func (a *Http) GetWeather(ctx context.Context, request openapi.GetWeatherRequestObject) (openapi.GetWeatherResponseObject, error) {
-	return &openapi.GetWeather200JSONResponse{}, nil
+func (a *Http) GetWeather(ctx context.Context, request oapi_gen.GetWeatherRequestObject) (oapi_gen.GetWeatherResponseObject, error) {
+	return &oapi_gen.GetWeather200JSONResponse{}, nil
 }
