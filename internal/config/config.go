@@ -2,6 +2,7 @@ package config
 
 import (
 	"flag"
+	"net/mail"
 
 	"git.fruzit.pp.ua/weather/api/internal/repo/smtp"
 	"git.fruzit.pp.ua/weather/api/internal/repo/weatherapi"
@@ -30,7 +31,14 @@ func NewConfig() (*Config, error) {
 	flag.StringVar(&config.Http.Host, "http.host", "[::]", "")
 	flag.IntVar(&config.Http.Port, "http.port", 8000, "")
 
-	flag.StringVar(&config.Smtp.From, "smtp.from", "", "")
+	flag.Func("smtp.from", "", func(s string) error {
+		addr, err := mail.ParseAddress(s)
+		if err != nil {
+			return err
+		}
+		config.Smtp.From = *addr
+		return nil
+	})
 	flag.StringVar(&config.Smtp.Host, "smtp.host", "", "")
 	flag.StringVar(&config.Smtp.Password, "smtp.password", "", "")
 	flag.IntVar(&config.Smtp.Port, "smtp.port", 0, "")
