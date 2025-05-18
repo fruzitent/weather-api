@@ -1,0 +1,7 @@
+# @help: https://bob.stephenafamo.com/docs/code-generation/configuration
+
+sql:
+  dialect: "sqlite"
+  output: "../bobgen_gen"
+  pattern: "schema.sql"
+  pkgname: "bobgen_gen"

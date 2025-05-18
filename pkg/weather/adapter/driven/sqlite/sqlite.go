@@ -2,5 +2,5 @@ package sqlite
 
 import _ "embed"
 
-//go:embed schema.sql
+//go:embed bobgen/schema.sql
 var Schema []byte
