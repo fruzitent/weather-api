@@ -5,10 +5,14 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"slices"
 
 	"git.fruzit.pp.ua/weather/api/internal/config"
 	"git.fruzit.pp.ua/weather/api/internal/lib/http"
+	"git.fruzit.pp.ua/weather/api/internal/lib/sqlite"
+	sqliteUser "git.fruzit.pp.ua/weather/api/pkg/user/adapter/driven/sqlite"
 	httpUser "git.fruzit.pp.ua/weather/api/pkg/user/adapter/driving/http"
+	sqliteWeather "git.fruzit.pp.ua/weather/api/pkg/weather/adapter/driven/sqlite"
 	httpWeather "git.fruzit.pp.ua/weather/api/pkg/weather/adapter/driving/http"
 )
 
@@ -35,6 +39,15 @@ func main() {
 	case CMD_DAEMON:
 		daemonCmd := flag.NewFlagSet(CMD_DAEMON, flag.ExitOnError)
 		daemonCmd.Parse(args[1:])
+
+		schema := slices.Concat(
+			sqliteUser.Schema,
+			sqliteWeather.Schema,
+		)
+		db, err := sqlite.Open(ctx, config.Sqlite.DataSourceName, schema)
+		if err != nil {
+			log.Fatal(err)
+		}
 
 		mux := http.NewServeMux()
 		_ = httpUser.New(mux)
