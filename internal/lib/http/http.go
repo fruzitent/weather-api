@@ -10,6 +10,9 @@ type Config struct {
 	Port int
 }
 
+type Handler = http.Handler
+type ServeMux = http.ServeMux
+
 func NewServeMux() *http.ServeMux {
 	return http.NewServeMux()
 }

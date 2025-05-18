@@ -7,6 +7,9 @@ import (
 	"log"
 
 	"git.fruzit.pp.ua/weather/api/internal/config"
+	"git.fruzit.pp.ua/weather/api/internal/lib/http"
+	httpUser "git.fruzit.pp.ua/weather/api/pkg/user/adapter/driving/http"
+	httpWeather "git.fruzit.pp.ua/weather/api/pkg/weather/adapter/driving/http"
 )
 
 const (
@@ -32,6 +35,11 @@ func main() {
 	case CMD_DAEMON:
 		daemonCmd := flag.NewFlagSet(CMD_DAEMON, flag.ExitOnError)
 		daemonCmd.Parse(args[1:])
+
+		mux := http.NewServeMux()
+		_ = httpUser.New(mux)
+		_ = httpWeather.New(mux)
+		log.Fatal(http.ListenAndServe(addr, mux))
 
 	case CMD_HEALTH:
 		healthCmd := flag.NewFlagSet(CMD_HEALTH, flag.ExitOnError)
