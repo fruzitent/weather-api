@@ -2,7 +2,7 @@
 
 ## Codegen
 
-- [ ] [bob](https://github.com/stephenafamo/bob)
+- [x] [bob](https://github.com/stephenafamo/bob)
 - [x] [oapi-codegen](https://github.com/oapi-codegen/oapi-codegen)
 
 ## Database
