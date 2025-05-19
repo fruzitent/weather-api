@@ -6,14 +6,20 @@ import (
 	"fmt"
 	"log"
 	"slices"
+	"time"
 
 	"git.fruzit.pp.ua/weather/api/internal/config"
 	"git.fruzit.pp.ua/weather/api/internal/lib/http"
 	"git.fruzit.pp.ua/weather/api/internal/lib/sqlite"
+	"git.fruzit.pp.ua/weather/api/internal/shared/domain/value"
 	httpUser "git.fruzit.pp.ua/weather/api/pkg/user/adapter/primary/http"
+	"git.fruzit.pp.ua/weather/api/pkg/user/adapter/secondary/smtp"
 	sqliteUser "git.fruzit.pp.ua/weather/api/pkg/user/adapter/secondary/sqlite"
+	entityUser "git.fruzit.pp.ua/weather/api/pkg/user/domain/entity"
 	httpWeather "git.fruzit.pp.ua/weather/api/pkg/weather/adapter/primary/http"
 	sqliteWeather "git.fruzit.pp.ua/weather/api/pkg/weather/adapter/secondary/sqlite"
+	entityWeather "git.fruzit.pp.ua/weather/api/pkg/weather/domain/entity"
+	valueWeather "git.fruzit.pp.ua/weather/api/pkg/weather/domain/value"
 )
 
 const (
@@ -48,6 +54,9 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
+		_ = db
+
+		notifications(config)
 
 		mux := http.NewServeMux()
 		_ = httpUser.New(mux)
@@ -60,5 +69,50 @@ func main() {
 
 	default:
 		log.Fatalf("invalid subcommand %s\n", args[0])
+	}
+}
+
+func notifications(config *config.Config) {
+	ntfyProvider := smtp.Smtp{
+		Config: &config.Smtp,
+	}
+
+	user := (func() entityUser.User {
+		id, err := value.NewId("hi")
+		if err != nil {
+			log.Fatal(err)
+		}
+		mail, err := value.NewMail("fruzit@fruzit.pp.ua")
+		if err != nil {
+			log.Fatal(err)
+		}
+		return entityUser.NewUser(*id, *mail)
+	})()
+
+	report := (func() entityWeather.Report {
+		createdAt := time.Now().Unix()
+		id, err := value.NewId("test-id")
+		if err != nil {
+			log.Fatal(err)
+		}
+		location, err := valueWeather.NewLocation("Kyiv")
+		if err != nil {
+			log.Fatal(err)
+		}
+		description := "Cloudy"
+		humidity, err := valueWeather.NewHumidity(0.5)
+		if err != nil {
+			log.Fatal(err)
+		}
+		temperature, err := valueWeather.NewTemperature(23)
+		if err != nil {
+			log.Fatal(err)
+		}
+		forecast := entityWeather.NewForecast(description, *humidity, *temperature)
+		return entityWeather.NewReport(createdAt, *id, *location, forecast)
+	})()
+
+	if err := ntfyProvider.Notify(user, report); err != nil {
+		log.Fatal(err)
 	}
 }

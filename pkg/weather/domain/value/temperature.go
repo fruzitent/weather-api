@@ -12,3 +12,7 @@ func NewTemperature(celcius float64) (*Temperature, error) {
 	}
 	return &Temperature{celcius}, nil
 }
+
+func (v *Temperature) String() string {
+	return fmt.Sprintf("%.2f C", v.Celcius)
+}

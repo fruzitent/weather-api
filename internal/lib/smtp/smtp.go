@@ -21,7 +21,7 @@ type Config struct {
 	Username string
 }
 
-func SendMail(config *Config, to *mail.Address, subject string, body string) error {
+func SendMail(config *Config, to *mail.Address, subject string, body []byte) error {
 	conn, err := tls.Dial("tcp", fmt.Sprintf("%s:%d", config.Host, config.Port), &tls.Config{
 		ServerName: config.Host,
 	})
@@ -54,7 +54,7 @@ func SendMail(config *Config, to *mail.Address, subject string, body string) err
 
 	headers := make(map[string]string)
 	headers["Content-Transfer-Encoding"] = "base64"
-	headers["Content-Type"] = "text/plain; charset=utf-8"
+	headers["Content-Type"] = "text/html; charset=utf-8"
 	headers["Date"] = time.Now().Format(time.RFC1123Z)
 	headers["From"] = config.From.String()
 	// TODO: POST request
@@ -73,7 +73,7 @@ func SendMail(config *Config, to *mail.Address, subject string, body string) err
 		}
 		msg += header + CRLF
 	}
-	msg += CRLF + base64.StdEncoding.EncodeToString([]byte(body)) + CRLF
+	msg += CRLF + base64.StdEncoding.EncodeToString(body) + CRLF
 
 	wc, err := client.Data()
 	if err != nil {

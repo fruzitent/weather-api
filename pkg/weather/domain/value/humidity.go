@@ -12,3 +12,7 @@ func NewHumidity(percentage float64) (*Humidity, error) {
 	}
 	return &Humidity{percentage}, nil
 }
+
+func (v *Humidity) String() string {
+	return fmt.Sprintf("%d %%", int(v.Percentage*100))
+}

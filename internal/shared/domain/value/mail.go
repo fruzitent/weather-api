@@ -2,7 +2,9 @@ package value
 
 import "net/mail"
 
-type Mail struct{ string }
+type Mail struct {
+	Address string
+}
 
 func NewMail(address string) (*Mail, error) {
 	addr, err := mail.ParseAddress(address)

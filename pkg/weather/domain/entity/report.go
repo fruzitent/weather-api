@@ -6,15 +6,17 @@ import (
 )
 
 type Report struct {
-	Id       valueShared.Id
-	Location value.Location
-	Forecast Forecast
+	CreatedAt int64
+	Id        valueShared.Id
+	Location  value.Location
+	Forecast  Forecast
 }
 
 func NewReport(
+	createdAt int64,
 	id valueShared.Id,
 	location value.Location,
 	forecast Forecast,
 ) Report {
-	return Report{id, location, forecast}
+	return Report{createdAt, id, location, forecast}
 }
