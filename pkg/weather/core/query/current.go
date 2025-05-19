@@ -16,16 +16,16 @@ type Current struct {
 type CurrentHandler decorator.QueryHandler[Current, entity.Forecast]
 
 type currentHandler struct {
-	WeatherProvider port.Provider
+	Meteo port.Meteo
 }
 
 var _ CurrentHandler = (*currentHandler)(nil)
 
-func NewCurrentHandler(weatherProvider port.Provider) *currentHandler {
-	return &currentHandler{weatherProvider}
+func NewCurrentHandler(meteo port.Meteo) *currentHandler {
+	return &currentHandler{meteo}
 }
 
 func (h *currentHandler) Handle(ctx context.Context, query Current) (entity.Forecast, error) {
-	res, err := h.WeatherProvider.GetCurrentWeather(query.Location)
+	res, err := h.Meteo.GetCurrentWeather(query.Location)
 	return *res, err
 }

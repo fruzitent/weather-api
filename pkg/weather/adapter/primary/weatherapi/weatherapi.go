@@ -12,7 +12,7 @@ type Weatherapi struct {
 	config *weatherapi.Config
 }
 
-var _ port.Provider = (*Weatherapi)(nil)
+var _ port.Meteo = (*Weatherapi)(nil)
 
 func NewWeatherapi(config *weatherapi.Config) (*Weatherapi, error) {
 	api, err := weatherapi.NewWeatherapi(config.Secret)

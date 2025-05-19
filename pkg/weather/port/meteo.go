@@ -5,6 +5,6 @@ import (
 	"git.fruzit.pp.ua/weather/api/pkg/weather/domain/value"
 )
 
-type Provider interface {
+type Meteo interface {
 	GetCurrentWeather(location value.Location) (*entity.Forecast, error)
 }

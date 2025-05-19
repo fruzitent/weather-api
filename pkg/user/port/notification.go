@@ -6,5 +6,5 @@ import (
 )
 
 type Notification interface {
-	Notify(user entity.User, report entityWeather.Report) error
+	SendWeatherReport(user entity.User, report entityWeather.Report) error
 }

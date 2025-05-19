@@ -23,7 +23,7 @@ type Smtp struct {
 
 var _ port.Notification = (*Smtp)(nil)
 
-func (a *Smtp) Notify(user entity.User, report entityWeather.Report) error {
+func (a *Smtp) SendWeatherReport(user entity.User, report entityWeather.Report) error {
 	addr, err := mail.ParseAddress(user.Mail.Address)
 	if err != nil {
 		return err

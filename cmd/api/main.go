@@ -105,7 +105,7 @@ func main() {
 }
 
 func notifications(config *config.DaemonConfig) error {
-	ntfyProvider := smtp.Smtp{
+	notification := smtp.Smtp{
 		Config: config.Smtp,
 	}
 
@@ -150,7 +150,7 @@ func notifications(config *config.DaemonConfig) error {
 		return err
 	}
 
-	if err := ntfyProvider.Notify(user, report); err != nil {
+	if err := notification.SendWeatherReport(user, report); err != nil {
 		return err
 	}
 
