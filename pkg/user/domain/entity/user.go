@@ -7,9 +7,6 @@ type User struct {
 	Mail value.Mail
 }
 
-func NewUser(id value.Id, mail value.Mail) *User {
-	return &User{
-		Id:   id,
-		Mail: mail,
-	}
+func NewUser(id value.Id, mail value.Mail) User {
+	return User{id, mail}
 }

@@ -6,11 +6,15 @@ import (
 )
 
 type Report struct {
-	Id          valueShared.Id
-	Location    value.Location
-	Measurement value.Measurement
+	Id       valueShared.Id
+	Location value.Location
+	Forecast Forecast
 }
 
-func NewReport(id valueShared.Id, location value.Location, measurement value.Measurement) (*Report, error) {
-	return &Report{id, location, measurement}, nil
+func NewReport(
+	id valueShared.Id,
+	location value.Location,
+	forecast Forecast,
+) Report {
+	return Report{id, location, forecast}
 }
