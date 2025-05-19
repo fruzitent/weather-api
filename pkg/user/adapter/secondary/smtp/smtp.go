@@ -21,6 +21,10 @@ type Smtp struct {
 	Config *smtp.Config
 }
 
+func NewSmtp(config *smtp.Config) *Smtp {
+	return &Smtp{config}
+}
+
 var _ port.Notification = (*Smtp)(nil)
 
 func (a *Smtp) SendConfirmation(user entity.User) error {
