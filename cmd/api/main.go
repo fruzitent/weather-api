@@ -17,7 +17,10 @@ import (
 	sqliteUser "git.fruzit.pp.ua/weather/api/pkg/user/adapter/secondary/sqlite"
 	entityUser "git.fruzit.pp.ua/weather/api/pkg/user/domain/entity"
 	httpWeather "git.fruzit.pp.ua/weather/api/pkg/weather/adapter/primary/http"
+	"git.fruzit.pp.ua/weather/api/pkg/weather/adapter/primary/weatherapi"
 	sqliteWeather "git.fruzit.pp.ua/weather/api/pkg/weather/adapter/secondary/sqlite"
+	coreWeather "git.fruzit.pp.ua/weather/api/pkg/weather/core"
+	queryWeather "git.fruzit.pp.ua/weather/api/pkg/weather/core/query"
 	entityWeather "git.fruzit.pp.ua/weather/api/pkg/weather/domain/entity"
 	valueWeather "git.fruzit.pp.ua/weather/api/pkg/weather/domain/value"
 )
@@ -58,9 +61,21 @@ func main() {
 
 		notifications(config)
 
+		providerWeather, err := weatherapi.NewWeatherapi(&config.Weatherapi)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		appWeather := coreWeather.App{
+			Command: coreWeather.Command{},
+			Query: coreWeather.Query{
+				Current: queryWeather.NewCurrentHandler(providerWeather),
+			},
+		}
+
 		mux := http.NewServeMux()
 		_ = httpUser.New(mux)
-		_ = httpWeather.New(mux)
+		_ = httpWeather.New(mux, &appWeather)
 		log.Fatal(http.ListenAndServe(addr, mux))
 
 	case CMD_HEALTH:

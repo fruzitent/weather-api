@@ -2,7 +2,7 @@ package core
 
 import (
 	_ "git.fruzit.pp.ua/weather/api/pkg/weather/core/command"
-	_ "git.fruzit.pp.ua/weather/api/pkg/weather/core/query"
+	"git.fruzit.pp.ua/weather/api/pkg/weather/core/query"
 )
 
 type App struct {
@@ -12,4 +12,6 @@ type App struct {
 
 type Command struct{}
 
-type Query struct{}
+type Query struct {
+	Current query.CurrentHandler
+}

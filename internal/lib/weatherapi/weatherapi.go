@@ -83,17 +83,17 @@ type Condition struct {
 	Code int    `json:"code"`
 }
 
-type CurrentReq struct {
+type RealtimeReq struct {
 	Q    string `json:"q"`
 	Lang string `json:"lang"`
 }
 
-type CurrentRes struct {
+type RealtimeRes struct {
 	Location Location `json:"location"`
 	Current  Current  `json:"current"`
 }
 
-func (a *Weatherapi) Current(command *CurrentReq) (*CurrentRes, error) {
+func (a *Weatherapi) Realtime(command *RealtimeReq) (*RealtimeRes, error) {
 	uri, err := url.JoinPath(BASE_URL, "current.json")
 	if err != nil {
 		return nil, err
@@ -117,7 +117,7 @@ func (a *Weatherapi) Current(command *CurrentReq) (*CurrentRes, error) {
 
 	switch res.StatusCode {
 	case http.StatusOK:
-		commandRes := &CurrentRes{}
+		commandRes := &RealtimeRes{}
 		if err := json.NewDecoder(res.Body).Decode(commandRes); err != nil {
 			return nil, err
 		}
