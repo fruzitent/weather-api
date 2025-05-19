@@ -36,13 +36,13 @@ func main() {
 
 	config, err := config.NewConfig()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("[config] %s", err.Error())
 	}
 	addr := fmt.Sprintf("%s:%d", config.Http.Host, config.Http.Port)
 
 	args := flag.Args()
 	if len(args) < 1 {
-		log.Fatalf("not enough arguments")
+		log.Fatalf("[flag] not enough arguments")
 	}
 
 	switch args[0] {
@@ -56,15 +56,17 @@ func main() {
 		)
 		db, err := sqlite.Open(ctx, config.Sqlite.DataSourceName, schema)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatalf("[sqlite] %s", err.Error())
 		}
 		_ = db
 
-		notifications(config)
+		if err := notifications(config); err != nil {
+			log.Fatalf("[notification] %s", err.Error())
+		}
 
 		providerWeather, err := weatherapi.NewWeatherapi(&config.Weatherapi)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatalf("[weatherapi] %s", err.Error())
 		}
 
 		appWeather := coreWeather.App{
@@ -78,62 +80,72 @@ func main() {
 		_ = httpProbe.New(mux)
 		_ = httpUser.New(mux)
 		_ = httpWeather.New(mux, &appWeather)
-		log.Fatal(http.ListenAndServe(addr, mux))
+		if err := http.ListenAndServe(addr, mux); err != nil {
+			log.Fatalf("[http] %s", err.Error())
+		}
 
 	case CMD_HEALTH:
 		healthCmd := flag.NewFlagSet(CMD_HEALTH, flag.ExitOnError)
 		healthCmd.Parse(args[1:])
 
 		if err := httpProbe.IsHealthy(addr); err != nil {
-			log.Fatal(err)
+			log.Fatalf("[health] %s", err.Error())
 		}
 
 	default:
-		log.Fatalf("invalid subcommand %s\n", args[0])
+		log.Fatalf("[flag] invalid subcommand %s\n", args[0])
 	}
 }
 
-func notifications(config *config.Config) {
+func notifications(config *config.Config) error {
 	ntfyProvider := smtp.Smtp{
 		Config: &config.Smtp,
 	}
 
-	user := (func() entityUser.User {
+	user, err := (func() (entityUser.User, error) {
 		id, err := value.NewId("hi")
 		if err != nil {
-			log.Fatal(err)
+			return entityUser.User{}, err
 		}
 		mail, err := value.NewMail("fruzit@fruzit.pp.ua")
 		if err != nil {
-			log.Fatal(err)
+			return entityUser.User{}, err
 		}
-		return entityUser.NewUser(*id, *mail)
+		return entityUser.NewUser(*id, *mail), nil
 	})()
+	if err != nil {
+		return err
+	}
 
-	report := (func() entityWeather.Report {
+	report, err := (func() (entityWeather.Report, error) {
 		createdAt := time.Now().Unix()
 		id, err := value.NewId("test-id")
 		if err != nil {
-			log.Fatal(err)
+			return entityWeather.Report{}, err
 		}
 		location, err := valueWeather.NewLocation("Kyiv")
 		if err != nil {
-			log.Fatal(err)
+			return entityWeather.Report{}, err
 		}
 		description := "Cloudy"
 		humidity, err := valueWeather.NewHumidity(0.5)
 		if err != nil {
-			log.Fatal(err)
+			return entityWeather.Report{}, err
 		}
 		temperature, err := valueWeather.NewTemperature(23)
 		if err != nil {
-			log.Fatal(err)
+			return entityWeather.Report{}, err
 		}
 		forecast := entityWeather.NewForecast(description, *humidity, *temperature)
-		return entityWeather.NewReport(createdAt, *id, *location, forecast)
+		return entityWeather.NewReport(createdAt, *id, *location, forecast), nil
 	})()
+	if err != nil {
+		return err
+	}
 
 	if err := ntfyProvider.Notify(user, report); err != nil {
-		log.Fatal(err)
+		return err
 	}
+
+	return nil
 }
