@@ -38,14 +38,16 @@ func (a *Smtp) SendWeatherReport(user entity.User, report entityWeather.Report) 
 	body := &bytes.Buffer{}
 
 	tmpl, err := template.ParseFS(Report, "template/report.html.tmpl")
-	err = tmpl.ExecuteTemplate(body, "report.html.tmpl", map[string]string{
+	if err != nil {
+		return err
+	}
+	if err := tmpl.ExecuteTemplate(body, "report.html.tmpl", map[string]string{
 		"Date":        time.Unix(report.CreatedAt, 0).Format(time.RFC3339),
 		"Description": report.Forecast.Description,
 		"Humidity":    report.Forecast.Humidity.String(),
 		"Temperature": report.Forecast.Temperature.String(),
 		"Unsubscribe": uri.String(),
-	})
-	if err != nil {
+	}); err != nil {
 		return err
 	}
 
