@@ -12,6 +12,7 @@ import (
 	"git.fruzit.pp.ua/weather/api/internal/lib/http"
 	"git.fruzit.pp.ua/weather/api/internal/lib/sqlite"
 	"git.fruzit.pp.ua/weather/api/internal/shared/domain/value"
+	httpProbe "git.fruzit.pp.ua/weather/api/pkg/probe/adapter/primary/http"
 	httpUser "git.fruzit.pp.ua/weather/api/pkg/user/adapter/primary/http"
 	"git.fruzit.pp.ua/weather/api/pkg/user/adapter/secondary/smtp"
 	sqliteUser "git.fruzit.pp.ua/weather/api/pkg/user/adapter/secondary/sqlite"
@@ -74,6 +75,7 @@ func main() {
 		}
 
 		mux := http.NewServeMux()
+		_ = httpProbe.New(mux)
 		_ = httpUser.New(mux)
 		_ = httpWeather.New(mux, &appWeather)
 		log.Fatal(http.ListenAndServe(addr, mux))
@@ -81,6 +83,10 @@ func main() {
 	case CMD_HEALTH:
 		healthCmd := flag.NewFlagSet(CMD_HEALTH, flag.ExitOnError)
 		healthCmd.Parse(args[1:])
+
+		if err := httpProbe.IsHealthy(addr); err != nil {
+			log.Fatal(err)
+		}
 
 	default:
 		log.Fatalf("invalid subcommand %s\n", args[0])
