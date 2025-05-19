@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os"
 	"slices"
 	"time"
 
@@ -34,11 +35,11 @@ const (
 func main() {
 	ctx := context.Background()
 
-	config, err := config.NewConfig()
+	cfgRoot, err := config.NewRootConfig(flag.CommandLine, os.Args[1:])
 	if err != nil {
-		log.Fatalf("[config] %s", err.Error())
+		log.Fatalf("[flag/root] %s", err.Error())
 	}
-	addr := fmt.Sprintf("%s:%d", config.Http.Host, config.Http.Port)
+	addr := fmt.Sprintf("%s:%d", cfgRoot.Http.Host, cfgRoot.Http.Port)
 
 	args := flag.Args()
 	if len(args) < 1 {
@@ -48,23 +49,29 @@ func main() {
 	switch args[0] {
 	case CMD_DAEMON:
 		daemonCmd := flag.NewFlagSet(CMD_DAEMON, flag.ExitOnError)
-		daemonCmd.Parse(args[1:])
+		cfgDaemon, err := config.NewDaemonConfig(daemonCmd, args[1:])
+		if err != nil {
+			log.Fatalf("[flag] %s", err.Error())
+		}
+		if err := cfgDaemon.Load(); err != nil {
+			log.Fatalf("[flag] %s", err.Error())
+		}
 
 		schema := slices.Concat(
 			sqliteUser.Schema,
 			sqliteWeather.Schema,
 		)
-		db, err := sqlite.Open(ctx, config.Sqlite.DataSourceName, schema)
+		db, err := sqlite.Open(ctx, cfgDaemon.Sqlite.Source, schema)
 		if err != nil {
 			log.Fatalf("[sqlite] %s", err.Error())
 		}
 		_ = db
 
-		if err := notifications(config); err != nil {
+		if err := notifications(cfgDaemon); err != nil {
 			log.Fatalf("[notification] %s", err.Error())
 		}
 
-		providerWeather, err := weatherapi.NewWeatherapi(&config.Weatherapi)
+		providerWeather, err := weatherapi.NewWeatherapi(cfgDaemon.Weatherapi)
 		if err != nil {
 			log.Fatalf("[weatherapi] %s", err.Error())
 		}
@@ -97,9 +104,9 @@ func main() {
 	}
 }
 
-func notifications(config *config.Config) error {
+func notifications(config *config.DaemonConfig) error {
 	ntfyProvider := smtp.Smtp{
-		Config: &config.Smtp,
+		Config: config.Smtp,
 	}
 
 	user, err := (func() (entityUser.User, error) {

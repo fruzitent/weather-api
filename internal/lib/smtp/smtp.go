@@ -3,6 +3,7 @@ package smtp
 import (
 	"crypto/tls"
 	"encoding/base64"
+	"flag"
 	"fmt"
 	"mime"
 	"net/mail"
@@ -19,6 +20,23 @@ type Config struct {
 	Password string
 	Port     int
 	Username string
+}
+
+func NewConfig(fs *flag.FlagSet) *Config {
+	config := &Config{}
+	fs.Func("smtp.from", "", func(s string) error {
+		addr, err := mail.ParseAddress(s)
+		if err != nil {
+			return err
+		}
+		config.From = *addr
+		return nil
+	})
+	fs.StringVar(&config.Host, "smtp.host", "", "")
+	fs.StringVar(&config.Password, "smtp.password", "", "")
+	fs.IntVar(&config.Port, "smtp.port", 0, "")
+	fs.StringVar(&config.Username, "smtp.username", "", "")
+	return config
 }
 
 func SendMail(config *Config, to *mail.Address, subject string, body []byte) error {

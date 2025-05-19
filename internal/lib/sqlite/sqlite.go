@@ -3,6 +3,7 @@ package sqlite
 import (
 	"context"
 	"database/sql"
+	"flag"
 	"io/fs"
 	"log"
 	"os"
@@ -13,24 +14,30 @@ import (
 )
 
 type Config struct {
-	DataSourceName string
+	Source string
 }
 
-func Open(ctx context.Context, dataSourceName string, schema []byte) (*sql.DB, error) {
-	db, err := open(ctx, dataSourceName)
+func NewConfig(fs *flag.FlagSet) *Config {
+	config := &Config{}
+	fs.StringVar(&config.Source, "sqlite.source", "db.sqlite3", "")
+	return config
+}
+
+func Open(ctx context.Context, source string, schema []byte) (*sql.DB, error) {
+	db, err := open(ctx, source)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := migration(ctx, dataSourceName, schema); err != nil {
+	if err := migration(ctx, source, schema); err != nil {
 		return nil, err
 	}
 
 	return db, nil
 }
 
-func open(ctx context.Context, dataSourceName string) (*sql.DB, error) {
-	db, err := sql.Open("sqlite3", dataSourceName)
+func open(ctx context.Context, source string) (*sql.DB, error) {
+	db, err := sql.Open("sqlite3", source)
 	if err != nil {
 		return nil, err
 	}
@@ -42,8 +49,8 @@ func open(ctx context.Context, dataSourceName string) (*sql.DB, error) {
 	return db, nil
 }
 
-func migration(ctx context.Context, dataSourceName string, schema []byte) error {
-	oldData, err := os.ReadFile(dataSourceName)
+func migration(ctx context.Context, source string, schema []byte) error {
+	oldData, err := os.ReadFile(source)
 	if err != nil {
 		return err
 	}
@@ -82,11 +89,11 @@ func migration(ctx context.Context, dataSourceName string, schema []byte) error 
 		if err != nil {
 			return err
 		}
-		info, err := os.Stat(dataSourceName)
+		info, err := os.Stat(source)
 		if err != nil {
 			return err
 		}
-		if err := os.WriteFile(dataSourceName, newData, info.Mode().Perm()); err != nil {
+		if err := os.WriteFile(source, newData, info.Mode().Perm()); err != nil {
 			return err
 		}
 	}

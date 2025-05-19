@@ -2,7 +2,6 @@ package config
 
 import (
 	"flag"
-	"net/mail"
 
 	"git.fruzit.pp.ua/weather/api/internal/lib/http"
 	"git.fruzit.pp.ua/weather/api/internal/lib/smtp"
@@ -10,46 +9,42 @@ import (
 	"git.fruzit.pp.ua/weather/api/internal/lib/weatherapi"
 )
 
-type Config struct {
-	Http       http.Config
-	Smtp       smtp.Config
-	Sqlite     sqlite.Config
-	Weatherapi weatherapi.Config
+type RootConfig struct {
+	Http *http.Config
 }
 
-func NewConfig() (*Config, error) {
-	config := &Config{}
-	var err error
-
-	flag.StringVar(&config.Http.Host, "http.host", "[::]", "")
-	flag.IntVar(&config.Http.Port, "http.port", 8000, "")
-
-	flag.Func("smtp.from", "", func(s string) error {
-		addr, err := mail.ParseAddress(s)
-		if err != nil {
-			return err
-		}
-		config.Smtp.From = *addr
-		return nil
-	})
-	flag.StringVar(&config.Smtp.Host, "smtp.host", "", "")
-	flag.StringVar(&config.Smtp.Password, "smtp.password", "", "")
-	flag.IntVar(&config.Smtp.Port, "smtp.port", 0, "")
-	flag.StringVar(&config.Smtp.Username, "smtp.username", "", "")
-
-	flag.StringVar(&config.Sqlite.DataSourceName, "sqlite.dataSourceName", "db.sqlite3", "")
-
-	flag.StringVar(&config.Weatherapi.Secret, "weatherapi.secret", "", "")
-
-	flag.Parse()
-
-	if config.Smtp.Password, err = loadSecret(config.Smtp.Password, "smtp.password"); err != nil {
+func NewRootConfig(fs *flag.FlagSet, args []string) (*RootConfig, error) {
+	config := &RootConfig{}
+	config.Http = http.NewConfig(fs)
+	if err := fs.Parse(args); err != nil {
 		return nil, err
 	}
-
-	if config.Weatherapi.Secret, err = loadSecret(config.Weatherapi.Secret, "weatherapi.secret"); err != nil {
-		return nil, err
-	}
-
 	return config, nil
+}
+
+type DaemonConfig struct {
+	Smtp       *smtp.Config
+	Sqlite     *sqlite.Config
+	Weatherapi *weatherapi.Config
+}
+
+func NewDaemonConfig(fs *flag.FlagSet, args []string) (*DaemonConfig, error) {
+	config := &DaemonConfig{}
+	config.Smtp = smtp.NewConfig(fs)
+	config.Sqlite = sqlite.NewConfig(fs)
+	config.Weatherapi = weatherapi.NewConfig(fs)
+	if err := fs.Parse(args); err != nil {
+		return nil, err
+	}
+	return config, nil
+}
+
+func (config *DaemonConfig) Load() (err error) {
+	if config.Smtp.Password, err = loadSecret(config.Smtp.Password, "smtp.password"); err != nil {
+		return err
+	}
+	if config.Weatherapi.Secret, err = loadSecret(config.Weatherapi.Secret, "weatherapi.secret"); err != nil {
+		return err
+	}
+	return nil
 }

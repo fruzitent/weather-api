@@ -1,6 +1,7 @@
 package http
 
 import (
+	"flag"
 	"log"
 	"net/http"
 )
@@ -8,6 +9,13 @@ import (
 type Config struct {
 	Host string
 	Port int
+}
+
+func NewConfig(fs *flag.FlagSet) *Config {
+	config := &Config{}
+	flag.StringVar(&config.Host, "http.host", "[::]", "")
+	flag.IntVar(&config.Port, "http.port", 8000, "")
+	return config
 }
 
 type Handler = http.Handler

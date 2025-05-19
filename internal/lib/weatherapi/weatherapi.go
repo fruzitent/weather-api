@@ -2,6 +2,7 @@ package weatherapi
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -20,6 +21,12 @@ func (e *Error) Error() string {
 
 type Config struct {
 	Secret string
+}
+
+func NewConfig(fs *flag.FlagSet) *Config {
+	config := &Config{}
+	fs.StringVar(&config.Secret, "weatherapi.secret", "", "")
+	return config
 }
 
 type Weatherapi struct {
