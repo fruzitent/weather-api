@@ -9,6 +9,7 @@ require (
 	github.com/jaswdr/faker/v2 v2.5.0
 	github.com/ncruces/go-sqlite3 v0.25.2
 	github.com/oapi-codegen/runtime v1.1.1
+	github.com/oklog/ulid/v2 v2.1.0
 	github.com/stephenafamo/bob v0.34.2
 	modernc.org/sqlite v1.20.3
 )

@@ -14,14 +14,41 @@ import (
 	entityWeather "git.fruzit.pp.ua/weather/api/pkg/weather/domain/entity"
 )
 
-//go:embed template/report.html.tmpl
-var Report embed.FS
+//go:embed template/*.html.tmpl
+var Template embed.FS
 
 type Smtp struct {
 	Config *smtp.Config
 }
 
 var _ port.Notification = (*Smtp)(nil)
+
+func (a *Smtp) SendConfirmation(user entity.User) error {
+	addr, err := mail.ParseAddress(user.Mail.Address)
+	if err != nil {
+		return err
+	}
+
+	// TODO: spaghetti
+	uri, err := url.Parse("https://weather.fruzit.pp.ua/api/confirm/1234")
+	if err != nil {
+		return err
+	}
+
+	body := &bytes.Buffer{}
+
+	tmpl, err := template.ParseFS(Template, "template/confirm.html.tmpl")
+	if err != nil {
+		return err
+	}
+	if err := tmpl.ExecuteTemplate(body, "confirm.html.tmpl", map[string]string{
+		"Confirm": uri.String(),
+	}); err != nil {
+		return err
+	}
+
+	return smtp.SendMail(a.Config, addr, "Confirm Subscription", body.Bytes())
+}
 
 func (a *Smtp) SendWeatherReport(user entity.User, report entityWeather.Report) error {
 	addr, err := mail.ParseAddress(user.Mail.Address)
@@ -37,7 +64,7 @@ func (a *Smtp) SendWeatherReport(user entity.User, report entityWeather.Report) 
 
 	body := &bytes.Buffer{}
 
-	tmpl, err := template.ParseFS(Report, "template/report.html.tmpl")
+	tmpl, err := template.ParseFS(Template, "template/report.html.tmpl")
 	if err != nil {
 		return err
 	}

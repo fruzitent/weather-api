@@ -1,7 +1,7 @@
 package core
 
 import (
-	_ "git.fruzit.pp.ua/weather/api/pkg/user/core/command"
+	"git.fruzit.pp.ua/weather/api/pkg/user/core/command"
 	_ "git.fruzit.pp.ua/weather/api/pkg/user/core/query"
 )
 
@@ -10,6 +10,8 @@ type App struct {
 	Query   Query
 }
 
-type Command struct{}
+type Command struct {
+	Subscribe command.SubscribeHandler
+}
 
 type Query struct{}
